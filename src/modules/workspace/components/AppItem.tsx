@@ -26,13 +26,14 @@ const getIcon = (iconName: string) => {
 
 // Category styling helper - Semantic Colors
 const getCategoryStyles = (category: string) => {
-  const styles: Record<string, string> = {
-    Productivity: 'bg-primary/10 text-primary',
-    Knowledge: 'bg-emerald-500/10 text-emerald-500',
-    Platform: 'bg-amber-500/10 text-amber-500',
-    Customer: 'bg-sky-500/10 text-sky-500',
+  const styles: Record<string, { bg: string, text: string, border: string, shadow: string, gradient: string }> = {
+    'Productivity': { bg: 'bg-fuchsia-500/10', text: 'text-fuchsia-500 dark:text-fuchsia-400', border: 'group-hover:border-fuchsia-500/50', shadow: 'group-hover:shadow-fuchsia-500/20', gradient: 'from-fuchsia-500 to-purple-600' },
+    'Knowledge': { bg: 'bg-emerald-500/10', text: 'text-emerald-500 dark:text-emerald-400', border: 'group-hover:border-emerald-500/50', shadow: 'group-hover:shadow-emerald-500/20', gradient: 'from-emerald-400 to-cyan-500' },
+    'Platform': { bg: 'bg-orange-500/10', text: 'text-orange-500 dark:text-orange-400', border: 'group-hover:border-orange-500/50', shadow: 'group-hover:shadow-orange-500/20', gradient: 'from-orange-400 to-rose-500' },
+    'Customer': { bg: 'bg-blue-500/10', text: 'text-blue-500 dark:text-blue-400', border: 'group-hover:border-blue-500/50', shadow: 'group-hover:shadow-blue-500/20', gradient: 'from-blue-400 to-indigo-500' },
+    'Presentation': { bg: 'bg-pink-500/10', text: 'text-pink-500 dark:text-pink-400', border: 'group-hover:border-pink-500/50', shadow: 'group-hover:shadow-pink-500/20', gradient: 'from-pink-400 to-rose-500' },
   };
-  return styles[category] || 'bg-secondary text-secondary-foreground';
+  return styles[category] || { bg: 'bg-slate-500/10', text: 'text-slate-500 dark:text-slate-400', border: 'group-hover:border-slate-500/50', shadow: 'group-hover:shadow-slate-500/20', gradient: 'from-slate-400 to-slate-600' };
 };
 
 interface AppItemProps {
@@ -45,7 +46,7 @@ interface AppItemProps {
 
 const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDetail, index = 0 }) => {
   const { openInNewTab } = usePreferences();
-  const categoryStyle = getCategoryStyles(app.category);
+  const catStyles = getCategoryStyles(app.category);
 
   const handleLaunch = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -55,7 +56,7 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
   if (viewMode === 'icon') {
     return (
       <motion.div 
-        className="group bg-card p-4 rounded-2xl border border-border shadow-sm hover:border-primary/50 hover:shadow-xl dark:hover:shadow-primary/10 hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center relative focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
+        className={`group glass-card p-4 rounded-2xl border border-white/10 shadow-sm hover:-translate-y-1 transition-all duration-300 ease-in-out cursor-pointer flex flex-col items-center text-center relative focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${catStyles.border} ${catStyles.shadow}`}
         onClick={() => onOpenDetail(app.id)}
         tabIndex={0}
         initial={{ opacity: 0, y: 20 }}
@@ -75,10 +76,10 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
           </button>
         </Tooltip>
         
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-sm ${categoryStyle}`}>
+        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300 shadow-sm bg-gradient-to-br ${catStyles.gradient} text-white`}>
           {React.cloneElement(getIcon(app.icon) as React.ReactElement, { size: 28 })}
         </div>
-        <h3 className="font-semibold text-foreground text-sm truncate w-full px-2">{app.name}</h3>
+        <h3 className={`font-semibold text-foreground text-sm truncate w-full px-2 transition-colors ${catStyles.text}`}>{app.name}</h3>
         <p className="text-xs text-muted-foreground truncate w-full mt-1 px-2">{app.category}</p>
       </motion.div>
     );
@@ -87,7 +88,7 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
   // Card View - Refined
   return (
     <motion.div 
-      className={`group bg-card rounded-xl border border-border shadow-sm hover:border-primary/50 hover:shadow-[0_10px_30px_rgba(99,102,241,0.15)] dark:hover:shadow-[0_10px_30px_rgba(139,92,246,0.25)] hover:-translate-y-1 transition-all duration-300 ease-in-out flex flex-col cursor-pointer h-full relative focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${app.isFavorite ? 'border-l-4 border-l-primary' : ''}`}
+      className={`group glass-card rounded-xl border border-white/10 shadow-sm hover:-translate-y-1 transition-all duration-300 ease-in-out flex flex-col cursor-pointer h-full relative focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background ${app.isFavorite ? 'border-l-4 border-l-amber-400' : ''} ${catStyles.border} ${catStyles.shadow}`}
       onClick={() => onOpenDetail(app.id)}
       tabIndex={0}
       initial={{ opacity: 0, y: 20 }}
@@ -95,11 +96,11 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
       transition={{ duration: 0.5, delay: index * 0.05 }}
     >
       {/* Hover Glow Effect - Subtle */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none rounded-xl" />
+      <div className={`absolute inset-0 bg-gradient-to-br ${catStyles.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none rounded-xl`} />
 
       <div className="p-5 flex-1 relative z-10">
         <div className="flex items-start justify-between mb-4">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm ${categoryStyle}`}>
+          <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm bg-gradient-to-br ${catStyles.gradient} text-white transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
             {React.cloneElement(getIcon(app.icon) as React.ReactElement, { size: 20 })}
           </div>
           <div className="flex flex-col items-end gap-1">
@@ -118,7 +119,7 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
           </div>
         </div>
 
-        <h3 className="font-bold text-base text-foreground mb-1.5 group-hover:text-primary transition-colors tracking-tight truncate">
+        <h3 className={`font-bold text-base text-foreground mb-1.5 transition-colors tracking-tight truncate ${catStyles.text}`}>
           {app.name}
         </h3>
         <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 font-sans min-h-[2.5rem]">
@@ -130,7 +131,7 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
         <Tooltip content={`Launch in ${openInNewTab ? 'new' : 'same'} tab`}>
           <button 
             onClick={handleLaunch}
-            className="group/btn flex items-center gap-1.5 bg-primary hover:brightness-110 text-primary-foreground text-[10px] font-bold uppercase tracking-wider py-2 px-3.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md dark:shadow-primary/20 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring/40"
+            className={`group/btn flex items-center gap-1.5 bg-gradient-to-r ${catStyles.gradient} hover:brightness-110 text-white text-[10px] font-bold uppercase tracking-wider py-2 px-3.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring/40`}
           >
             <span>Launch</span>
             <span className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-200">
@@ -140,9 +141,9 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
         </Tooltip>
 
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary border border-border">
-             <Activity size={10} className="text-emerald-500" />
-             <span className="text-[10px] font-medium text-secondary-foreground truncate max-w-[80px]">{app.baseActivity.split(':')[0]}</span>
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 dark:bg-black/20 border border-white/10 backdrop-blur-sm">
+             <Activity size={10} className="text-emerald-400" />
+             <span className="text-[10px] font-medium text-foreground truncate max-w-[80px]">{app.baseActivity.split(':')[0]}</span>
           </div>
         </div>
       </div>

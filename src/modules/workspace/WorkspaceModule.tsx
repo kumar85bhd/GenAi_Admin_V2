@@ -149,6 +149,13 @@ const WorkspaceModule: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-background overflow-hidden transition-colors duration-300 text-foreground relative">
+      {/* Animated AI Background */}
+      <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-indigo-500/30 dark:bg-indigo-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob"></div>
+        <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-emerald-500/30 dark:bg-emerald-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
+        <div className="absolute bottom-[-20%] left-[20%] w-[40rem] h-[40rem] bg-fuchsia-500/30 dark:bg-fuchsia-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob animation-delay-4000"></div>
+      </div>
+
       {isSidebarOpen && (
         <div className="fixed inset-0 bg-black/50 z-20 md:hidden" onClick={() => setIsSidebarOpen(false)} />
       )}
@@ -163,8 +170,7 @@ const WorkspaceModule: React.FC = () => {
         className={`fixed md:relative z-30 h-full transform transition-all duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
       />
 
-      <main className="flex-1 flex flex-col min-w-0 relative">
-          <div className="absolute inset-0 -z-10 h-full w-full bg-background bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+      <main className="flex-1 flex flex-col min-w-0 relative z-10">
         <Header 
           userName={userName}
           searchQuery={searchQuery}
@@ -181,7 +187,7 @@ const WorkspaceModule: React.FC = () => {
           <div className="max-w-7xl mx-auto w-full">
              <motion.div 
                 key={activeFilter + '-' + activeCategory} 
-                className="bg-card/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-slate-200/60 dark:shadow-2xl dark:shadow-black/40 border border-border relative overflow-hidden"
+                className="glass-panel rounded-3xl relative overflow-hidden"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}

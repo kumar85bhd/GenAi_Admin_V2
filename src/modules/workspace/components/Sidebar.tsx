@@ -33,8 +33,8 @@ const Sidebar: React.FC<SidebarProps> = ({
   className = ''
 }) => {
   return (
-    <aside className={`bg-card/80 backdrop-blur-xl border-r border-border shadow-sm flex flex-col transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${isCollapsed ? 'w-16' : 'w-64'} ${className} z-30`}>
-      <div className="h-20 flex items-center justify-between px-4 border-b border-border">
+    <aside className={`glass-panel border-r border-white/10 shadow-sm flex flex-col transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] ${isCollapsed ? 'w-16' : 'w-64'} ${className} z-30`}>
+      <div className="h-20 flex items-center justify-between px-4 border-b border-white/10">
         {!isCollapsed && (
           <div className="flex items-center gap-2.5 animate-in fade-in duration-300">
             <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-primary-foreground font-bold font-serif text-sm shadow-sm shadow-primary/20">
