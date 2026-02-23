@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import config from './config';
-import { MockStrategy } from './mockStrategy';
+import { LoginStrategy } from './loginStrategy';
 import { JwtStrategy } from './jwtStrategy';
 import { adminResolver } from './adminResolver';
 import { AuthStrategy } from './authStrategy';
@@ -21,10 +21,10 @@ const logger = winston.createLogger({
 let strategy: AuthStrategy;
 
 try {
-  if (config.AUTH_MODE === 'jwt') {
+  if (config.AUTH_MODE === 'sso') {
     strategy = new JwtStrategy();
   } else {
-    strategy = new MockStrategy();
+    strategy = new LoginStrategy();
   }
 } catch (error) {
   logger.error('Failed to initialize auth strategy', { error });
@@ -36,7 +36,11 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     logger.warn('Missing or invalid Authorization header');
-    res.status(401).json({ error: 'Unauthorized' });
+    if (config.AUTH_MODE === 'sso') {
+      res.status(401).json({ error: 'SSO failed' });
+    } else {
+      res.status(401).json({ error: 'Unauthorized' });
+    }
     return;
   }
 
@@ -51,6 +55,10 @@ export const authMiddleware = async (req: Request, res: Response, next: NextFunc
     next();
   } catch (error) {
     logger.warn('Authentication failed', { error: (error as Error).message });
-    res.status(401).json({ error: 'Unauthorized' });
+    if (config.AUTH_MODE === 'sso') {
+      res.status(401).json({ error: 'SSO failed' });
+    } else {
+      res.status(401).json({ error: 'Unauthorized' });
+    }
   }
 };

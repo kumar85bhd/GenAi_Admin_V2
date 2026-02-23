@@ -1,6 +1,8 @@
 import React from 'react';
-import { Bell, Search, Menu, User } from 'lucide-react';
+import { Bell, Search, Menu, User, LogOut } from 'lucide-react';
 import { usePreferences } from '../../../shared/context/PreferencesContext';
+import { useAuth } from '../../../shared/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface AdminHeaderProps {
   userName: string;
@@ -9,6 +11,13 @@ interface AdminHeaderProps {
 
 const AdminHeader: React.FC<AdminHeaderProps> = ({ userName, onMenuClick }) => {
   const { isDarkMode, toggleDarkMode } = usePreferences();
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/logged-out');
+  };
 
   return (
     <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between px-6 z-20 shadow-sm">
@@ -51,10 +60,17 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ userName, onMenuClick }) => {
           <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900 flex items-center justify-center text-indigo-600 dark:text-indigo-300 font-bold text-sm mr-3">
             {userName.charAt(0)}
           </div>
-          <div className="hidden md:block">
+          <div className="hidden md:block mr-4">
             <p className="text-sm font-medium text-slate-700 dark:text-slate-200">{userName}</p>
             <p className="text-xs text-slate-500 dark:text-slate-400">Administrator</p>
           </div>
+          <button 
+            onClick={handleSignOut}
+            className="p-2 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+            title="Sign Out"
+          >
+            <LogOut size={18} />
+          </button>
         </div>
       </div>
     </header>

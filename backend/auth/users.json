@@ -1,0 +1,12 @@
+[
+  {
+    "email": "guest@samsung.com",
+    "name": "Guest User",
+    "password": "password123"
+  },
+  {
+    "email": "admin@samsung.com",
+    "name": "Admin User",
+    "password": "adminpassword"
+  }
+]

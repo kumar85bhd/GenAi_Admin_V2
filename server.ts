@@ -5,6 +5,8 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { authMiddleware, adminRoutes } from './backend';
+import authConfig from './backend/auth/config';
+import jwt from 'jsonwebtoken';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,11 +39,33 @@ async function startServer() {
     res.json({ status: 'ok', live: true });
   });
 
+  app.get('/api/auth/config', (req, res) => {
+    res.json({ mode: authConfig.AUTH_MODE });
+  });
+
   app.post('/api/auth/login', (req, res) => {
-    res.json({
-      access_token: 'mock-token',
-      token_type: 'bearer'
-    });
+    const { email, password } = req.body;
+    const usersPath = path.join(__dirname, 'backend', 'auth', 'users.json');
+    try {
+      const users = JSON.parse(fs.readFileSync(usersPath, 'utf-8'));
+      const user = users.find((u: any) => u.email === email && u.password === password);
+      if (user) {
+        const token = jwt.sign({ email: user.email, name: user.name }, authConfig.JWT_SECRET, { expiresIn: '1h' });
+        res.json({
+          access_token: token,
+          token_type: 'bearer'
+        });
+      } else {
+        res.status(401).json({ error: 'Invalid credentials' });
+      }
+    } catch (error) {
+      console.error('Error reading users.json', error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  });
+
+  app.get('/api/auth/me', authMiddleware, (req, res) => {
+    res.json(req.user);
   });
 
   // Protected Routes

@@ -39,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({
   addToast
 }) => {
   const { isDarkMode, toggleDarkMode, openInNewTab, toggleOpenInNewTab } = usePreferences();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const profileRef = useRef<HTMLDivElement>(null);
@@ -56,7 +56,11 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleAdminSwitch = () => {
-    navigate('/admin');
+    if (user?.roles?.includes('admin')) {
+      navigate('/admin');
+    } else {
+      addToast("You do not have admin access", "error");
+    }
     setIsProfileOpen(false);
   };
 
@@ -69,6 +73,11 @@ const Header: React.FC<HeaderProps> = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  const handleSignOut = () => {
+    logout();
+    navigate('/logged-out');
+  };
 
   return (
     <header className="h-20 glass-panel border-b border-white/10 flex items-center justify-between px-8 sticky top-0 z-40 transition-all duration-200">
@@ -196,7 +205,10 @@ const Header: React.FC<HeaderProps> = ({
                   <ShieldCheck size={16} />
                   <span>Switch to Admin View</span>
                 </button>
-                <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/40">
+                <button 
+                  onClick={handleSignOut}
+                  className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-destructive/10 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-destructive/40"
+                >
                   <LogOut size={16} />
                   <span>Sign Out</span>
                 </button>
