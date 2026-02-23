@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1",
+    "name": "Meeting Assistant",
+    "description": "AI-powered meeting notes and action items",
+    "category": "Productivity",
+    "route": "/workspace/meeting-assistant",
+    "isActive": true
+  },
+  {
+    "id": "2",
+    "name": "Document Search",
+    "description": "Semantic search across company knowledge base",
+    "category": "Knowledge",
+    "route": "/workspace/document-search",
+    "isActive": true
+  },
+  {
+    "id": "3",
+    "name": "Code Reviewer",
+    "description": "Automated code review and suggestions",
+    "category": "Development",
+    "route": "/workspace/code-reviewer",
+    "isActive": true
+  },
+  {
+    "id": "12",
+    "name": "Asset Generator",
+    "description": "Generate marketing assets and copy",
+    "category": "Marketing",
+    "route": "/workspace/asset-generator",
+    "isActive": true
+  }
+]
