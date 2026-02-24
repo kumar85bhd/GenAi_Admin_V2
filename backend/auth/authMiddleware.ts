@@ -1,64 +1,53 @@
 import { Request, Response, NextFunction } from 'express';
-import config from './config';
-import { LoginStrategy } from './loginStrategy';
-import { JwtStrategy } from './jwtStrategy';
-import { adminResolver } from './adminResolver';
-import { AuthStrategy } from './authStrategy';
-import winston from 'winston';
+import jwt from 'jsonwebtoken';
+import fs from 'fs';
+import path from 'path';
+import authConfig from './config';
 
-// Logger setup (Step 11 requirement integrated here for usage)
-const logger = winston.createLogger({
-  level: 'info',
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.json()
-  ),
-  transports: [
-    new winston.transports.Console(),
-  ],
-});
-
-let strategy: AuthStrategy;
-
-try {
-  if (config.AUTH_MODE === 'sso') {
-    strategy = new JwtStrategy();
-  } else {
-    strategy = new LoginStrategy();
-  }
-} catch (error) {
-  logger.error('Failed to initialize auth strategy', { error });
-  process.exit(1);
-}
-
-export const authMiddleware = async (req: Request, res: Response, next: NextFunction) => {
+export const authMiddleware = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    logger.warn('Missing or invalid Authorization header');
-    if (config.AUTH_MODE === 'sso') {
-      res.status(401).json({ error: 'SSO failed' });
-    } else {
-      res.status(401).json({ error: 'Unauthorized' });
-    }
-    return;
+    return res.status(401).json({ error: 'Unauthorized' });
   }
 
   const token = authHeader.split(' ')[1];
 
   try {
-    let user = await strategy.authenticate(token);
-    user = adminResolver.resolve(user);
-    req.user = user;
+    let publicKey = authConfig.JWT_SECRET; // fallback
+    if (authConfig.JWT_ALGORITHM === 'RS256') {
+      const keyPath = path.resolve(process.cwd(), authConfig.JWT_PUBLIC_KEY_PATH || './public_key.pem');
+      if (fs.existsSync(keyPath)) {
+        publicKey = fs.readFileSync(keyPath, 'utf8');
+      } else {
+        console.warn(`Public key not found at ${keyPath}`);
+      }
+    }
+
+    const decoded = jwt.verify(token, publicKey, {
+      algorithms: [authConfig.JWT_ALGORITHM as jwt.Algorithm],
+      issuer: authConfig.JWT_ISSUER || undefined,
+      audience: authConfig.JWT_AUDIENCE || undefined,
+    }) as any;
     
-    logger.info('Authentication successful', { email: user.email });
+    // Check roles
+    const adminUsersPath = path.resolve(process.cwd(), 'backend/auth/admin_users.json');
+    let roles = ['user'];
+    if (fs.existsSync(adminUsersPath)) {
+      try {
+        const adminData = JSON.parse(fs.readFileSync(adminUsersPath, 'utf8'));
+        if (adminData.admins && adminData.admins.includes(decoded.email)) {
+          roles.push('admin');
+        }
+      } catch (e) {
+        console.error('Error reading admin_users.json', e);
+      }
+    }
+    
+    decoded.roles = roles;
+    (req as any).user = decoded;
     next();
   } catch (error) {
-    logger.warn('Authentication failed', { error: (error as Error).message });
-    if (config.AUTH_MODE === 'sso') {
-      res.status(401).json({ error: 'SSO failed' });
-    } else {
-      res.status(401).json({ error: 'Unauthorized' });
-    }
+    console.error('Authentication failed:', error);
+    return res.status(401).json({ error: 'Invalid token' });
   }
 };

@@ -7,9 +7,25 @@ import { fileURLToPath } from 'url';
 import { authMiddleware, adminRoutes } from './backend';
 import authConfig from './backend/auth/config';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Generate RSA keys if they don't exist
+const publicKeyPath = path.resolve(process.cwd(), authConfig.JWT_PUBLIC_KEY_PATH || './public_key.pem');
+const privateKeyPath = path.resolve(process.cwd(), './private_key.pem');
+
+if (authConfig.JWT_ALGORITHM === 'RS256' && (!fs.existsSync(publicKeyPath) || !fs.existsSync(privateKeyPath))) {
+  console.log('Generating RSA key pair for RS256 JWT authentication...');
+  const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+    modulusLength: 2048,
+    publicKeyEncoding: { type: 'spki', format: 'pem' },
+    privateKeyEncoding: { type: 'pkcs8', format: 'pem' },
+  });
+  fs.writeFileSync(publicKeyPath, publicKey);
+  fs.writeFileSync(privateKeyPath, privateKey);
+}
 
 async function startServer() {
   const app = express();
@@ -50,7 +66,21 @@ async function startServer() {
       const users = JSON.parse(fs.readFileSync(usersPath, 'utf-8'));
       const user = users.find((u: any) => u.email === email && u.password === password);
       if (user) {
-        const token = jwt.sign({ email: user.email, name: user.name }, authConfig.JWT_SECRET, { expiresIn: '1h' });
+        let privateKey = authConfig.JWT_SECRET;
+        if (authConfig.JWT_ALGORITHM === 'RS256') {
+          privateKey = fs.readFileSync(privateKeyPath, 'utf8');
+        }
+        
+        const token = jwt.sign(
+          { email: user.email, name: user.name },
+          privateKey,
+          { 
+            expiresIn: '1h',
+            algorithm: authConfig.JWT_ALGORITHM as jwt.Algorithm,
+            ...(authConfig.JWT_ISSUER ? { issuer: authConfig.JWT_ISSUER } : {}),
+            ...(authConfig.JWT_AUDIENCE ? { audience: authConfig.JWT_AUDIENCE } : {})
+          }
+        );
         res.json({
           access_token: token,
           token_type: 'bearer'
@@ -126,3 +156,4 @@ async function startServer() {
 }
 
 startServer();
+

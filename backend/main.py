@@ -1,24 +1,31 @@
 from fastapi import FastAPI
-from fastapi.middleware.cors import CORSMiddleware
-from backend.routes import admin_apps, apps, auth
-from backend.utils.logger import get_logger
+from starlette.middleware.cors import CORSMiddleware
+from starlette.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 
-logger = get_logger(__name__)
+from backend.routes import auth, admin
 
-app = FastAPI(title="GenAI Workspace API")
+app = FastAPI()
 
+# CORS Middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  # In production, you should restrict this to your frontend's domain
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-app.include_router(auth.router)
-app.include_router(admin_apps.router)
-app.include_router(apps.router)
+app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
+app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
 
 @app.get("/api/health")
-def health_check():
-    return {"status": "ok", "live": True}
+def read_root():
+    return {"status": "ok"}
+
+# Serve Frontend
+app.mount("/assets", StaticFiles(directory="dist/assets"), name="assets")
+
+@app.get("/{catchall:path}")
+async def serve_spa(catchall: str):
+    return FileResponse("dist/index.html")

@@ -5,9 +5,11 @@ A unified React application combining a user-facing GenAI Workspace and an Admin
 
 ## 2. Architecture Summary
 - **Frontend**: React (TypeScript) + Vite
+- **Backend**: FastAPI (Python)
 - **Styling**: Tailwind CSS
 - **Routing**: React Router DOM (v6)
 - **State Management**: Context API (Auth, Preferences)
+- **Authentication**: JWT RS256 authentication
 - **Modules**:
   - **Workspace**: User interface for AI tools.
   - **Admin**: Dashboard for system health monitoring.
@@ -19,9 +21,20 @@ A unified React application combining a user-facing GenAI Workspace and an Admin
 - **Tailwind CSS**
 - **Lucide React** (Icons)
 - **Recharts** (Charts)
+- **FastAPI** (Backend)
+- **Uvicorn** (ASGI Server)
+- **Pydantic** (Data Validation)
 
 ## 4. Folder Structure
 ```
+/backend            # FastAPI backend logic
+  /auth             # Authentication strategies and dependencies
+  /routes           # API routes
+  /models           # Pydantic models
+  /data             # JSON data storage
+  /utils            # Utility functions
+  main.py           # FastAPI application entry point
+  config.py         # Configuration settings
 /src
   /modules
     /workspace      # User-facing module
@@ -53,10 +66,13 @@ A unified React application combining a user-facing GenAI Workspace and an Admin
     Navigate to `http://localhost:3000` in your browser.
 
 ## 6. Environment Setup
-- Create a `.env` file in the root directory (optional for now, as mock data is used).
+- Create a `.env` file in the root directory.
 - Example `.env.example`:
   ```env
-  VITE_API_BASE_URL=http://localhost:8000
+  JWT_PUBLIC_KEY_PATH=./public_key.pem
+  JWT_ALGORITHM=RS256
+  JWT_ISSUER=your_issuer
+  JWT_AUDIENCE=your_audience
   ```
 
 ## 7. Build Instructions
@@ -73,48 +89,31 @@ The output will be in the `dist` directory.
 
 ## 9. Testing User Roles (Admin vs Normal User)
 
-The application uses a mock authentication strategy for development. To test different user roles, you need to manually update the mock data in two files.
+The application uses a FastAPI backend with JSON files for user data.
 
-### Default State (Admin User)
-The default mock user is `test_user@company.com`, which is configured as an Admin.
+### Default Users
+- **Admin User**: `admin@samsung.com`
+- **Normal User**: `guest@samsung.com`
 
-### How to Switch to "Normal User" Mode
-To test the application as a standard user (without Admin access):
+### How to Switch Roles
+To test the application as a standard user or an admin, simply log out and log back in with the respective credentials.
 
-1.  **Update Backend Mock Strategy** (`/backend/auth/mockStrategy.ts`):
-    Change the email to one that is **NOT** in `backend/auth/admin_users.json`.
-    ```typescript
-    // backend/auth/mockStrategy.ts
-    return {
-      email: 'normal_user@company.com', // Changed from test_user@company.com
-      name: 'Normal User',
-      roles: ['user'],
-      isAdmin: false,
-    };
+1.  **Admin Configuration** (`/backend/data/admin_users.json`):
+    This file contains an array of emails that are granted admin privileges.
+    ```json
+    {
+      "admins": [
+        "admin@samsung.com"
+      ]
+    }
     ```
 
-2.  **Update Frontend Auth Context** (`/src/shared/context/AuthContext.tsx`):
-    Sync the frontend mock state to match the backend.
-    ```typescript
-    // src/shared/context/AuthContext.tsx
-    // Inside useEffect and login function:
-    setUser({
-      id: '2',
-      name: 'Normal User',
-      email: 'normal_user@company.com',
-      roles: ['user'] // REMOVE 'admin' from this array
-    });
-    ```
+2.  **User Configuration**:
+    The authentication system extracts the email from the JWT token. The role is determined by checking if the email exists in `admin_users.json`.
 
 3.  **Verify Behavior**:
-    - The "Switch to Admin View" button in the profile dropdown should **disappear**.
-    - Accessing `/admin` directly should redirect to the home page or show a 403 Forbidden error.
-
-### How to Switch Back to "Admin User" Mode
-1.  **Update Backend Mock Strategy**:
-    Change email back to `test_user@company.com` (or any email listed in `backend/auth/admin_users.json`).
-2.  **Update Frontend Auth Context**:
-    Change email back to `test_user@company.com` and add `'admin'` to the `roles` array.
+    - When logged in as `guest@samsung.com`, the "Switch to Admin View" button in the profile dropdown should **disappear**.
+    - Accessing `/admin` directly as a normal user should redirect to the home page or show a 403 Forbidden error.
 
 ## 10. Future Enhancement Roadmap
 - **Real Backend Integration**: Replace mock APIs with real endpoints.

@@ -1,8 +1,15 @@
 # Low-Level Design (LLD) - GenAI Workspace & Admin Platform
 
 ## 1. Folder Structure
-
 ```
+/backend            # FastAPI backend logic
+  /auth             # Authentication strategies and dependencies
+  /routes           # API routes
+  /models           # Pydantic models
+  /data             # JSON data storage
+  /utils            # Utility functions
+  main.py           # FastAPI application entry point
+  config.py         # Configuration settings
 /src
   /modules
     /workspace      # User-facing module
@@ -58,7 +65,7 @@
 ## 5. Data Flow
 
 1.  **Initialization**: `App.tsx` initializes contexts.
-2.  **Authentication**: `AuthContext` checks for existing session (mocked via `localStorage`).
+2.  **Authentication**: `AuthContext` checks for existing session by calling the `/api/auth/me` endpoint.
 3.  **Data Fetching**:
     -   **Workspace**: Fetches app list from `src/shared/services/api.ts`.
     -   **Admin**: Fetches system config and health data from `src/modules/admin/services/api.ts`.
