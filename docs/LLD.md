@@ -36,15 +36,27 @@
   - **Route**: `/admin/*` -> `RequireAdmin` -> `AdminModule`
 
 ### 2.2 Workspace Module (`WorkspaceModule.tsx`)
-- **Layout**: `Header` (Sticky), `Sidebar` (No categories), `MainContent`
-- **Background**: Ambient gradient + Animated blobs (Light/Dark mode specific)
-- **State**: `searchQuery`, `viewMode`, `activeFilter`, `activeCategory`
-- **Components**: `Hero`, `CategoryNav` (Horizontal with overflow), `AppGrid` (4-column), `AppCard`
+- **Layout**: `Header` (Sticky), `TopNavigation` (Sticky, Collapsible), `MainContent` (Scrollable)
+- **Scroll Logic**: `useRef` on main content container detects scroll position (>80px) to toggle `isNavCollapsed`.
+- **Background**: Ambient gradient + Animated blobs
+- **State**: `searchQuery`, `viewMode`, `activeFilter`, `activeCategory`, `isNavCollapsed`
 
-### 2.4 Category Navigation (`CategoryNav.tsx`)
-- **Behavior**: Horizontal tab-style navigation below Hero.
-- **Overflow Logic**: Displays max 5 categories. Excess categories moved to a "More" dropdown.
-- **Animation**: `framer-motion` for active underline and dropdown fade/slide.
+### 2.3 Navigation System (`TopNavigation.tsx` & `CategoryTabs.tsx`)
+- **Structure**: Home, Favorites, Dynamic Categories.
+- **Collapsing Behavior**:
+  - **Expanded**: Height 72px, full labels, standard padding.
+  - **Collapsed**: Height 60px, icons only (labels hidden), reduced padding, increased blur.
+  - **Animation**: `framer-motion` handles smooth transitions for height, background, and element opacity.
+- **Overflow**: `CategoryTabs` handles overflow categories into a "More" dropdown.
+
+### 2.4 Card Surface (`CardSurfaceContainer.tsx`)
+- **Effect**: Mouse-following radial gradient highlight layer behind the grid.
+- **Performance**: Uses `framer-motion` for optimized opacity transitions.
+
+### 2.5 Scroll Optimization
+- **Container**: `overflow-y-auto` on main content div.
+- **Scrollbar**: Hidden via CSS (`no-scrollbar` utility) but functional.
+- **Behavior**: Prevents body scroll, ensuring only the content area scrolls.
 
 ### 2.4 Card Interaction Layer (`AppItem.tsx`)
 - **Motion**: Uses `framer-motion` for staggered entry (`delay: index * 0.05`).

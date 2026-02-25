@@ -131,8 +131,14 @@ To test the application as a standard user or an admin, simply log out and log b
 - **Header**: Reduced height to 64px (h-16) for better screen real estate.
 - **Performance**: Optimized for zero layout shift and fast loading.
 
-### Layout Architecture (Phase 3 Update)
-- **Hero**: Reduced height, distinct light/dark mode styling (soft shadow vs deep glow).
-- **Category Navigation**: Horizontal tab-style bar below hero with overflow dropdown (max 5 visible).
-- **Grid**: Responsive 4-column layout (`grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`) with soft background blur container.
-- **Cards**: Single-line descriptions with ellipsis, reduced padding for tighter grid.
+### Layout Architecture (Phase 5 Update)
+- **Navigation**: Intelligent collapsing Top Navigation (`TopNavigation.tsx`).
+  - Collapses to compact mode on scroll (>80px).
+  - Expands when returning to top.
+  - Smooth `framer-motion` transitions for height, opacity, and padding.
+- **Scroll Optimization**:
+  - Main content area handles scrolling (`overflow-y-auto`).
+  - Body scroll locked (`overflow-hidden`).
+  - Scrollbar visually hidden but functional.
+- **Hero**: Integrated into scrollable area, triggering nav collapse when scrolled past.
+- **Category System**: Dynamic tabs adapt to collapsed state (labels hide/show).

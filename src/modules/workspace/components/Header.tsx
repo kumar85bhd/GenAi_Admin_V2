@@ -14,7 +14,6 @@ interface HeaderProps {
   setSearchQuery: (q: string) => void;
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
-  onMenuClick: () => void;
   totalApps: number;
   isLive: boolean;
   addToast: (message: string, type?: ToastType) => void;
@@ -33,7 +32,6 @@ const Header: React.FC<HeaderProps> = ({
   setSearchQuery,
   viewMode,
   setViewMode,
-  onMenuClick,
   totalApps,
   isLive,
   addToast
@@ -80,24 +78,24 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-8 sticky top-0 z-40 transition-all duration-200">
+    <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 transition-all duration-200 backdrop-blur-md bg-background/80">
       <div className="flex items-center gap-8 flex-1">
-        <button 
-          onClick={onMenuClick}
-          className="md:hidden p-2 text-muted-foreground hover:bg-secondary rounded-lg focus:outline-none focus:ring-2 focus:ring-ring/40"
-        >
-          <Menu size={20} />
-        </button>
         
-        <div className="hidden md:block">
-          <h1 className="text-xl font-serif font-bold text-foreground">
-            {greeting}, <span className="bg-gradient-to-r from-primary to-secondary-foreground bg-clip-text text-transparent">{userName}</span>
-          </h1>
-          <div className="flex items-center gap-2 mt-1">
-            <div className={`w-2 h-2 rounded-full ${isLive ? 'bg-green-500' : 'bg-amber-500'}`} />
-            <p className="text-xs font-medium text-muted-foreground">
-              {isLive ? 'System Operational' : 'Offline Mode'} • {totalApps} tools available
-            </p>
+        <div className="flex items-center gap-3">
+           {/* Logo Area */}
+           <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold font-serif text-sm shadow-sm shadow-indigo-500/20">
+              G
+           </div>
+           <div className="hidden md:block">
+            <h1 className="text-xl font-serif font-bold text-foreground">
+              {greeting}, <span className="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">{userName}</span>
+            </h1>
+            <div className="flex items-center gap-2 mt-0.5">
+              <div className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
+              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+                {isLive ? 'System Online' : 'Offline'} • {totalApps} tools
+              </p>
+            </div>
           </div>
         </div>
 
@@ -105,10 +103,10 @@ const Header: React.FC<HeaderProps> = ({
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" size={16} />
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search tools..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-secondary border border-border rounded-full focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-primary text-sm text-foreground placeholder-muted-foreground transition-all shadow-sm"
+            className="w-full pl-9 pr-4 py-2 bg-secondary/50 border border-border/50 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500/50 text-sm text-foreground placeholder-muted-foreground transition-all shadow-sm hover:bg-secondary"
           />
         </div>
       </div>
