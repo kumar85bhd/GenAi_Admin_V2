@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Search, LayoutGrid, List, Menu, Moon, Sun, Monitor, ExternalLink, LogOut, ChevronDown, User, ShieldCheck } from 'lucide-react';
 import { ViewMode } from '../../../shared/types';
 import { usePreferences } from '../../../shared/context/PreferencesContext';
+import { useUserPreference } from '../../../shared/context/UserPreferenceContext';
 import { Tooltip } from '../../../shared/components/ui/Tooltip';
 import { Switch } from '../../../shared/components/ui/Switch';
 import { useNavigate } from 'react-router-dom';
@@ -36,7 +37,9 @@ const Header: React.FC<HeaderProps> = ({
   isLive,
   addToast
 }) => {
-  const { isDarkMode, toggleDarkMode, openInNewTab, toggleOpenInNewTab } = usePreferences();
+  const { openInNewTab, toggleOpenInNewTab } = usePreferences();
+  const { theme, setTheme } = useUserPreference();
+  const isDarkMode = theme === 'dark';
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -44,7 +47,7 @@ const Header: React.FC<HeaderProps> = ({
   const greeting = getGreeting();
 
   const handleDarkModeToggle = () => {
-    toggleDarkMode();
+    setTheme(isDarkMode ? 'light' : 'dark');
     addToast(isDarkMode ? "Switched to Light Mode" : "Switched to Dark Mode", "info");
   };
 
@@ -82,10 +85,7 @@ const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-8 flex-1">
         
         <div className="flex items-center gap-3">
-           {/* Logo Area */}
-           <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold font-serif text-sm shadow-sm shadow-indigo-500/20">
-              G
-           </div>
+
            <div className="hidden md:block">
             <h1 className="text-xl font-serif font-bold text-foreground">
               {greeting}, <span className="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">{userName}</span>

@@ -36,18 +36,18 @@
   - **Route**: `/admin/*` -> `RequireAdmin` -> `AdminModule`
 
 ### 2.2 Workspace Module (`WorkspaceModule.tsx`)
-- **Layout**: `Header` (Sticky), `TopNavigation` (Sticky, Collapsible), `MainContent` (Scrollable)
-- **Scroll Logic**: `useRef` on main content container detects scroll position (>80px) to toggle `isNavCollapsed`.
+- **Layout**: `SidebarNavigation` (Fixed, Collapsible), `Header` (Sticky), `MainContent` (Scrollable)
+- **Main Content Layout**: `ml-[72px]` to offset for the collapsed sidebar width.
 - **Background**: Ambient gradient + Animated blobs
-- **State**: `searchQuery`, `viewMode`, `activeFilter`, `activeCategory`, `isNavCollapsed`
+- **State**: `searchQuery`, `viewMode`, `activeFilter`, `activeCategory`
 
-### 2.3 Navigation System (`TopNavigation.tsx` & `CategoryTabs.tsx`)
-- **Structure**: Home, Favorites, Dynamic Categories.
+### 2.3 Navigation System (`SidebarNavigation.tsx`)
+- **Structure**: Vertical layout with Home, Favorites, and a dynamic list of Categories.
 - **Collapsing Behavior**:
-  - **Expanded**: Height 72px, full labels, standard padding.
-  - **Collapsed**: Height 60px, icons only (labels hidden), reduced padding, increased blur.
-  - **Animation**: `framer-motion` handles smooth transitions for height, background, and element opacity.
-- **Overflow**: `CategoryTabs` handles overflow categories into a "More" dropdown.
+  - **Collapsed**: 72px width, shows icons only with tooltips on hover.
+  - **Expanded**: 240px width, expands on hover to show full text labels.
+  - **Animation**: `framer-motion` handles the width transition smoothly.
+- **Active Indicator**: A vertical bar on the left highlights the active navigation item.
 
 ### 2.4 Card Surface (`CardSurfaceContainer.tsx`)
 - **Effect**: Mouse-following radial gradient highlight layer behind the grid.
@@ -98,8 +98,32 @@
     -   **Admin**: Fetches system config and health data from `src/modules/admin/services/api.ts`.
 4.  **State Updates**: Components update local state or context state, triggering re-renders.
 
-## 6. Role Guard Logic
+## 7. User Preference Persistence
 
-The `RequireAdmin` component checks the `user` object from `AuthContext`.
--   If `user` is null or `user.roles` does not include `'admin'`, it renders `<Navigate to="/workspace" replace />`.
--   Otherwise, it renders the child components (Admin Module).
+### 7.1 Database Schema Diagram
+```mermaid
+erDiagram
+    user_preferences {
+        UUID id PK
+        VARCHAR email UK "Indexed"
+        VARCHAR theme "Default: 'dark'"
+        JSONB favorites "Default: []"
+        TIMESTAMP updated_at
+    }
+```
+
+### 7.2 Sequence Flow
+1. **Login**: User authenticates, frontend receives JWT.
+2. **Fetch Preferences**: `UserPreferenceProvider` calls `GET /api/preferences`.
+   - Backend extracts email from JWT.
+   - Backend queries `user_preferences` table.
+   - If no record exists, backend creates a default record.
+   - Backend returns `theme` and `favorites`.
+3. **Apply Preferences**: Frontend updates React state, applies CSS classes for theme, and marks favorite apps.
+4. **Update Theme**: User toggles theme.
+   - Frontend calls `PUT /api/preferences/theme`.
+   - Backend updates `theme` column.
+5. **Update Favorites**: User toggles a favorite app.
+   - Frontend calculates new favorites array.
+   - Frontend calls `PUT /api/preferences/favorites` with full array.
+   - Backend overwrites `favorites` JSONB column.

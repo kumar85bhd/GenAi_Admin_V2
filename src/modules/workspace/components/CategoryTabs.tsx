@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Briefcase, BookOpen, Layout, Settings, Database, Folder } from 'lucide-react';
+import { ChevronDown, Briefcase, BookOpen, Layout, Settings, Database, Folder, Users, Presentation } from 'lucide-react';
 
 interface CategoryTabsProps {
   categories: string[];
@@ -17,7 +17,20 @@ const getCategoryIcon = (category: string, isCollapsed: boolean) => {
   if (lower.includes('plat')) return <Layout size={size} />;
   if (lower.includes('data')) return <Database size={size} />;
   if (lower.includes('set')) return <Settings size={size} />;
+  if (lower.includes('custom')) return <Users size={size} />;
+  if (lower.includes('present')) return <Presentation size={size} />;
   return <Folder size={size} />;
+};
+
+const getCategoryStyles = (category: string) => {
+  const styles: Record<string, { bg: string, text: string, gradient: string }> = {
+    'Productivity': { bg: 'bg-fuchsia-50 dark:bg-fuchsia-500/10', text: 'text-fuchsia-600 dark:text-fuchsia-400', gradient: 'bg-gradient-to-r from-fuchsia-500 to-purple-600' },
+    'Knowledge': { bg: 'bg-emerald-50 dark:bg-emerald-500/10', text: 'text-emerald-600 dark:text-emerald-400', gradient: 'bg-gradient-to-r from-emerald-400 to-cyan-500' },
+    'Platform': { bg: 'bg-orange-50 dark:bg-orange-500/10', text: 'text-orange-600 dark:text-orange-400', gradient: 'bg-gradient-to-r from-orange-400 to-rose-500' },
+    'Customer': { bg: 'bg-blue-50 dark:bg-blue-500/10', text: 'text-blue-600 dark:text-blue-400', gradient: 'bg-gradient-to-r from-blue-400 to-indigo-500' },
+    'Presentation': { bg: 'bg-pink-50 dark:bg-pink-500/10', text: 'text-pink-600 dark:text-pink-400', gradient: 'bg-gradient-to-r from-pink-400 to-rose-500' },
+  };
+  return styles[category] || { bg: 'bg-indigo-50 dark:bg-indigo-500/10', text: 'text-indigo-600 dark:text-indigo-400', gradient: 'bg-indigo-600 dark:bg-indigo-400' };
 };
 
 const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeCategory, onSelectCategory, isCollapsed = false }) => {
@@ -40,37 +53,42 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeCategory,
 
   return (
     <div className="flex items-center gap-1">
-      {visibleCategories.map((category) => (
-        <button
-          key={category}
-          onClick={() => onSelectCategory(category)}
-          className={`relative px-3 py-2 text-sm font-medium transition-colors rounded-lg flex items-center gap-2 ${
-            activeCategory === category
-              ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10'
-              : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
-          }`}
-        >
-          {getCategoryIcon(category, isCollapsed)}
-          <motion.span 
-            animate={{ 
-              opacity: isCollapsed ? 0 : 1, 
-              width: isCollapsed ? 0 : 'auto',
-              marginLeft: isCollapsed ? 0 : 8
-            }}
-            className="overflow-hidden whitespace-nowrap"
+      {visibleCategories.map((category) => {
+        const styles = getCategoryStyles(category);
+        const isActive = activeCategory === category;
+        
+        return (
+          <button
+            key={category}
+            onClick={() => onSelectCategory(category)}
+            className={`relative px-3 py-2 text-sm font-medium transition-colors rounded-lg flex items-center gap-2 ${
+              isActive
+                ? `${styles.text} ${styles.bg}`
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+            }`}
           >
-            {category}
-          </motion.span>
-          {activeCategory === category && (
-            <motion.div
-              layoutId="activeTabIndicator"
-              className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
-              initial={false}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            />
-          )}
-        </button>
-      ))}
+            {getCategoryIcon(category, isCollapsed)}
+            <motion.span 
+              animate={{ 
+                opacity: isCollapsed ? 0 : 1, 
+                width: isCollapsed ? 0 : 'auto',
+                marginLeft: isCollapsed ? 0 : 8
+              }}
+              className="overflow-hidden whitespace-nowrap"
+            >
+              {category}
+            </motion.span>
+            {isActive && (
+              <motion.div
+                layoutId="activeTabIndicator"
+                className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${styles.gradient}`}
+                initial={false}
+                transition={{ type: "spring", stiffness: 300, damping: 30 }}
+              />
+            )}
+          </button>
+        );
+      })}
 
       {overflowCategories.length > 0 && (
         <div className="relative ml-1" ref={dropdownRef}>
@@ -78,7 +96,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeCategory,
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className={`flex items-center gap-1 px-3 py-2 text-sm font-medium transition-colors rounded-lg ${
               overflowCategories.includes(activeCategory || '')
-                ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10'
+                ? `${getCategoryStyles(activeCategory || '').text} ${getCategoryStyles(activeCategory || '').bg}`
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
             }`}
           >
@@ -90,7 +108,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeCategory,
             {overflowCategories.includes(activeCategory || '') && (
               <motion.div
                 layoutId="activeTabIndicator"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-indigo-600 dark:bg-indigo-400 rounded-full"
+                className={`absolute bottom-0 left-0 right-0 h-0.5 rounded-full ${getCategoryStyles(activeCategory || '').gradient}`}
                 initial={false}
                 transition={{ type: "spring", stiffness: 300, damping: 30 }}
               />
@@ -106,22 +124,28 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeCategory,
                 transition={{ duration: 0.2 }}
                 className="absolute right-0 top-full mt-2 w-48 py-1 bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 z-50 overflow-hidden"
               >
-                {overflowCategories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => {
-                      onSelectCategory(category);
-                      setIsDropdownOpen(false);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                      activeCategory === category
-                        ? 'bg-indigo-50 dark:bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 font-medium'
-                        : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'
-                    }`}
-                  >
-                    {category}
-                  </button>
-                ))}
+                {overflowCategories.map((category) => {
+                  const styles = getCategoryStyles(category);
+                  const isActive = activeCategory === category;
+                  
+                  return (
+                    <button
+                      key={category}
+                      onClick={() => {
+                        onSelectCategory(category);
+                        setIsDropdownOpen(false);
+                      }}
+                      className={`w-full text-left px-4 py-2.5 text-sm transition-colors flex items-center gap-2 ${
+                        isActive
+                          ? `${styles.bg} ${styles.text} font-medium`
+                          : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-200'
+                      }`}
+                    >
+                      {getCategoryIcon(category, false)}
+                      {category}
+                    </button>
+                  );
+                })}
               </motion.div>
             )}
           </AnimatePresence>

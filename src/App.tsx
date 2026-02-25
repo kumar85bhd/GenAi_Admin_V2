@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { PreferencesProvider } from './shared/context/PreferencesContext';
+import { UserPreferenceProvider } from './shared/context/UserPreferenceContext';
 import { AuthProvider, useAuth } from './shared/context/AuthContext';
 import WorkspaceModule from './modules/workspace/WorkspaceModule';
 import AdminModule from './modules/admin/AdminModule';
@@ -53,7 +54,9 @@ const App: React.FC = () => {
     <BrowserRouter>
       <AuthProvider>
         <PreferencesProvider>
-          <AppRoutes />
+          <UserPreferenceProvider>
+            <AppRoutes />
+          </UserPreferenceProvider>
         </PreferencesProvider>
       </AuthProvider>
     </BrowserRouter>

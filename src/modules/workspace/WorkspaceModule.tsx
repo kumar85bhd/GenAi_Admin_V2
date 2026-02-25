@@ -3,13 +3,14 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import AppItem from './components/AppItem';
 import DetailPanel from './components/DetailPanel';
-import TopNavigation from './components/TopNavigation';
+import SidebarNavigation from './components/SidebarNavigation';
 import CardSurfaceContainer from './components/CardSurfaceContainer';
 import ToastContainer, { ToastMessage, ToastType } from '../../shared/components/Toast';
 import { AppData, FilterType, ViewMode } from '../../shared/types';
 import { api } from '../../shared/services/api';
 import { PackageOpen, Loader2 } from 'lucide-react';
 import { useAuth } from '../../shared/context/AuthContext';
+import { useUserPreference } from '../../shared/context/UserPreferenceContext';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const WorkspaceModule: React.FC = () => {
@@ -22,11 +23,11 @@ const WorkspaceModule: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
-  const [isNavCollapsed, setIsNavCollapsed] = useState(false);
   const mainContentRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuth();
   const userName = user?.name || "Guest";
+  const { favorites, toggleFavorite } = useUserPreference();
 
   const addToast = (message: string, type: ToastType = 'info') => {
     const id = Math.random().toString(36).substring(7);
@@ -55,26 +56,6 @@ const WorkspaceModule: React.FC = () => {
     initWorkspace();
   }, []);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (mainContentRef.current) {
-        const scrollTop = mainContentRef.current.scrollTop;
-        setIsNavCollapsed(scrollTop > 80);
-      }
-    };
-
-    const container = mainContentRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
-    }
-
-    return () => {
-      if (container) {
-        container.removeEventListener('scroll', handleScroll);
-      }
-    };
-  }, []);
-
   const categories = useMemo(() => {
     return Array.from(new Set(apps.map(a => a.category))).sort();
   }, [apps]);
@@ -83,21 +64,10 @@ const WorkspaceModule: React.FC = () => {
     const app = apps.find(a => a.id === id);
     if (!app) return;
 
-    const newStatus = !app.isFavorite;
-    
-    setApps(prev => prev.map(a => 
-      a.id === id ? { ...a, isFavorite: newStatus } : a
-    ));
+    const newStatus = !favorites.includes(id);
+    toggleFavorite(id);
 
     addToast(`${newStatus ? 'Added to' : 'Removed from'} favorites: ${app.name}`, "success");
-
-    try {
-      if (isLive) {
-        await api.toggleFavorite(id);
-      }
-    } catch (err) {
-      console.warn("Favorite change not synced to backend.");
-    }
   };
 
   const handleNavigate = (filter: FilterType, category: string | null) => {
@@ -110,7 +80,7 @@ const WorkspaceModule: React.FC = () => {
   };
 
   const filteredApps = useMemo(() => {
-    let result = apps;
+    let result = apps.map(app => ({ ...app, isFavorite: favorites.includes(app.id) }));
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(app => 
@@ -123,7 +93,7 @@ const WorkspaceModule: React.FC = () => {
       result = result.filter(app => app.category === activeCategory);
     }
     return result;
-  }, [apps, searchQuery, activeFilter, activeCategory]);
+  }, [apps, favorites, searchQuery, activeFilter, activeCategory]);
 
   const selectedApp = useMemo(() => 
     apps.find(a => a.id === selectedAppId) || null
@@ -188,7 +158,14 @@ const WorkspaceModule: React.FC = () => {
         <div className="absolute bottom-[-20%] left-[20%] w-[40rem] h-[40rem] bg-fuchsia-500/30 dark:bg-fuchsia-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob animation-delay-4000"></div>
       </div>
 
-      <main className="flex-1 flex flex-col min-w-0 relative z-10">
+      <SidebarNavigation 
+        activeFilter={activeFilter}
+        activeCategory={activeCategory}
+        categories={categories}
+        onNavigate={handleNavigate}
+      />
+
+      <main className="flex-1 flex flex-col min-w-0 relative z-10 ml-[72px]">
         <Header 
           userName={userName}
           searchQuery={searchQuery}
@@ -215,17 +192,6 @@ const WorkspaceModule: React.FC = () => {
                  <Hero />
                </motion.div>
              )}
-
-             {/* Sticky Top Navigation */}
-             <div className="sticky top-0 z-40 -mx-6 md:-mx-8 px-6 md:px-8 py-2">
-               <TopNavigation 
-                 activeFilter={activeFilter}
-                 activeCategory={activeCategory}
-                 categories={categories}
-                 onNavigate={handleNavigate}
-                 isCollapsed={isNavCollapsed}
-               />
-             </div>
 
              <AnimatePresence mode="wait">
                <motion.div 

@@ -64,5 +64,58 @@ export const api = {
         trend: 'up'
       }
     };
+  },
+
+  getPreferences: async (): Promise<{ theme: string, favorites: number[] } | null> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return null;
+      const res = await fetch('/api/preferences', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      return null;
+    } catch (error) {
+      console.error('Failed to fetch preferences', error);
+      return null;
+    }
+  },
+
+  updateTheme: async (theme: string): Promise<void> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+      await fetch('/api/preferences/theme', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ theme })
+      });
+    } catch (error) {
+      console.error('Failed to update theme', error);
+    }
+  },
+
+  updateFavorites: async (favorites: number[]): Promise<void> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      if (!token) return;
+      await fetch('/api/preferences/favorites', {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ favorites })
+      });
+    } catch (error) {
+      console.error('Failed to update favorites', error);
+    }
   }
 };

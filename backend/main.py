@@ -4,6 +4,12 @@ from starlette.staticfiles import StaticFiles
 from starlette.responses import FileResponse
 
 from backend.routes import auth, admin
+from backend.app.routes import preferences
+from backend.app.database import engine, Base
+from backend.app.models.user_preferences import UserPreference
+
+# Create database tables
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
@@ -18,6 +24,7 @@ app.add_middleware(
 
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+app.include_router(preferences.router, prefix="/api/preferences", tags=["preferences"])
 
 @app.get("/api/health")
 def read_root():

@@ -73,9 +73,23 @@ A unified React application combining a user-facing GenAI Workspace and an Admin
   JWT_ALGORITHM=RS256
   JWT_ISSUER=your_issuer
   JWT_AUDIENCE=your_audience
+  DATABASE_URL=postgresql+psycopg2://user:password@localhost:5432/genai_workspace
   ```
 
-## 7. Build Instructions
+### PostgreSQL Setup
+1. Install PostgreSQL and ensure it is running.
+2. Create a database named `genai_workspace` (or your preferred name).
+3. Set the `DATABASE_URL` environment variable in your `.env` file to point to your database.
+4. The backend will automatically create the necessary tables (`user_preferences`) on startup using SQLAlchemy.
+
+## 7. API Endpoints
+
+### User Preferences (New)
+- `GET /api/preferences`: Fetch preferences for the authenticated user. Auto-creates a default record if none exists.
+- `PUT /api/preferences/theme`: Update theme preference (accepts `light` or `dark`).
+- `PUT /api/preferences/favorites`: Overwrite the full favorites list (accepts a list of integer IDs).
+
+## 8. Build Instructions
 To build the application for production:
 ```bash
 npm run build
@@ -132,10 +146,10 @@ To test the application as a standard user or an admin, simply log out and log b
 - **Performance**: Optimized for zero layout shift and fast loading.
 
 ### Layout Architecture (Phase 5 Update)
-- **Navigation**: Intelligent collapsing Top Navigation (`TopNavigation.tsx`).
-  - Collapses to compact mode on scroll (>80px).
-  - Expands when returning to top.
-  - Smooth `framer-motion` transitions for height, opacity, and padding.
+- **Navigation**: Collapsible left sidebar (`SidebarNavigation.tsx`) for main navigation (Home, Favorites, Categories).
+  - Expands on hover from 72px to 240px.
+  - Vertical layout removes the need for a 'More' dropdown for categories.
+- **Header**: The main header is now dedicated to the greeting, search, view mode, and profile controls.
 - **Scroll Optimization**:
   - Main content area handles scrolling (`overflow-y-auto`).
   - Body scroll locked (`overflow-hidden`).
