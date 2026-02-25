@@ -24,16 +24,17 @@ const TopNavigation: React.FC<TopNavigationProps> = ({
       initial={false}
       animate={{
         height: isCollapsed ? 60 : 72,
-        backgroundColor: isCollapsed ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.6)",
-        backdropFilter: isCollapsed ? "blur(16px)" : "blur(12px)",
-        borderColor: isCollapsed ? "rgba(226, 232, 240, 0.8)" : "rgba(226, 232, 240, 0.4)",
         y: isCollapsed ? 0 : 0,
         borderRadius: isCollapsed ? 16 : 24,
         paddingLeft: isCollapsed ? 16 : 24,
         paddingRight: isCollapsed ? 16 : 24,
       }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-      className="w-full border border-slate-200 dark:border-slate-800 dark:bg-slate-950/80 shadow-sm z-40 transition-all duration-300 flex items-center"
+      className={`w-full border shadow-sm z-40 transition-all duration-300 flex items-center ${
+        isCollapsed 
+          ? 'bg-white/90 dark:bg-slate-950/90 border-slate-200 dark:border-slate-800 backdrop-blur-xl' 
+          : 'bg-white/60 dark:bg-slate-950/60 border-slate-200/50 dark:border-slate-800/50 backdrop-blur-md'
+      }`}
     >
       <div className="w-full flex items-center justify-between">
         {/* Left Side: Primary Nav */}

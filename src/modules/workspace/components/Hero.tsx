@@ -4,7 +4,7 @@ import { Bot, Sparkles, Cpu, Network, Zap, Code, Database, BrainCircuit } from '
 
 const Hero: React.FC = () => {
   return (
-    <div className="relative w-full h-[200px] md:h-[220px] rounded-3xl overflow-hidden mb-8 group isolate bg-slate-50 dark:bg-slate-950 shadow-xl shadow-indigo-100/50 dark:shadow-2xl dark:shadow-indigo-900/20 border border-indigo-100 dark:border-indigo-500/10 transition-colors duration-300">
+    <div className="relative w-full h-[200px] md:h-[220px] rounded-3xl overflow-hidden group isolate bg-slate-50 dark:bg-slate-950 shadow-xl shadow-indigo-100/50 dark:shadow-2xl dark:shadow-indigo-900/20 border border-indigo-100 dark:border-indigo-500/10 transition-colors duration-300">
       {/* 1. Background Layer */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-100/80 via-slate-50 to-slate-50 dark:from-indigo-900/40 dark:via-slate-950 dark:to-slate-950 transition-colors duration-300" />
       

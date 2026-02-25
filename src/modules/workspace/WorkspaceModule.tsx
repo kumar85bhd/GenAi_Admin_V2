@@ -154,7 +154,7 @@ const WorkspaceModule: React.FC = () => {
     return (
       <CardSurfaceContainer>
         <motion.div 
-          className={`grid gap-6 ${viewMode === 'card' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'} pb-20`}
+          className={`grid gap-6 ${viewMode === 'card' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'} pb-20`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ staggerChildren: 0.05 }}
@@ -204,7 +204,7 @@ const WorkspaceModule: React.FC = () => {
           ref={mainContentRef}
           className="flex-1 overflow-y-auto scroll-smooth no-scrollbar relative"
         >
-           <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-8">
+           <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-4">
              {/* Show Hero only on main dashboard view without search */}
              {!searchQuery && activeFilter === 'dashboard' && !activeCategory && (
                <motion.div
@@ -217,7 +217,7 @@ const WorkspaceModule: React.FC = () => {
              )}
 
              {/* Sticky Top Navigation */}
-             <div className="sticky top-0 z-40 -mx-6 md:-mx-8 px-6 md:px-8 pt-2 pb-4">
+             <div className="sticky top-0 z-40 -mx-6 md:-mx-8 px-6 md:px-8 py-2">
                <TopNavigation 
                  activeFilter={activeFilter}
                  activeCategory={activeCategory}
@@ -227,17 +227,20 @@ const WorkspaceModule: React.FC = () => {
                />
              </div>
 
-             <motion.div 
-                key={activeFilter + '-' + activeCategory} 
-                className="glass-panel rounded-3xl relative overflow-hidden bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 shadow-sm"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3 }}
-              >
-               <div className="p-6 md:p-8">
-                 {renderContent()}
-               </div>
-             </motion.div>
+             <AnimatePresence mode="wait">
+               <motion.div 
+                  key={activeFilter + '-' + activeCategory} 
+                  className="glass-panel rounded-3xl relative overflow-hidden bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 shadow-sm"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3 }}
+                >
+                 <div className="p-6 md:p-8">
+                   {renderContent()}
+                 </div>
+               </motion.div>
+             </AnimatePresence>
           </div>
         </div>
       </main>

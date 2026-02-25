@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, Briefcase, BookOpen, Layout, Settings, Database, Folder } from 'lucide-react';
 
 interface CategoryTabsProps {
   categories: string[];
@@ -8,6 +8,17 @@ interface CategoryTabsProps {
   onSelectCategory: (category: string) => void;
   isCollapsed?: boolean;
 }
+
+const getCategoryIcon = (category: string, isCollapsed: boolean) => {
+  const size = isCollapsed ? 18 : 16;
+  const lower = category.toLowerCase();
+  if (lower.includes('product')) return <Briefcase size={size} />;
+  if (lower.includes('know')) return <BookOpen size={size} />;
+  if (lower.includes('plat')) return <Layout size={size} />;
+  if (lower.includes('data')) return <Database size={size} />;
+  if (lower.includes('set')) return <Settings size={size} />;
+  return <Folder size={size} />;
+};
 
 const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeCategory, onSelectCategory, isCollapsed = false }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -33,13 +44,23 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({ categories, activeCategory,
         <button
           key={category}
           onClick={() => onSelectCategory(category)}
-          className={`relative px-3 py-2 text-sm font-medium transition-colors rounded-lg ${
+          className={`relative px-3 py-2 text-sm font-medium transition-colors rounded-lg flex items-center gap-2 ${
             activeCategory === category
               ? 'text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/50'
           }`}
         >
-          {category}
+          {getCategoryIcon(category, isCollapsed)}
+          <motion.span 
+            animate={{ 
+              opacity: isCollapsed ? 0 : 1, 
+              width: isCollapsed ? 0 : 'auto',
+              marginLeft: isCollapsed ? 0 : 8
+            }}
+            className="overflow-hidden whitespace-nowrap"
+          >
+            {category}
+          </motion.span>
           {activeCategory === category && (
             <motion.div
               layoutId="activeTabIndicator"
