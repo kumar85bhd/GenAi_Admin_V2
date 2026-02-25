@@ -46,8 +46,11 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     decoded.roles = roles;
     (req as any).user = decoded;
     next();
-  } catch (error) {
+  } catch (error: any) {
     console.error('Authentication failed:', error);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: 'Token expired' });
+    }
     return res.status(401).json({ error: 'Invalid token' });
   }
 };

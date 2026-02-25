@@ -36,9 +36,24 @@
   - **Route**: `/admin/*` -> `RequireAdmin` -> `AdminModule`
 
 ### 2.2 Workspace Module (`WorkspaceModule.tsx`)
-- **Layout**: `Header`, `Sidebar`, `MainContent`
-- **State**: `searchQuery`, `viewMode`, `activeFilter`
-- **Components**: `AppGrid`, `AppCard`, `AppList`
+- **Layout**: `Header` (Sticky), `Sidebar` (No categories), `MainContent`
+- **Background**: Ambient gradient + Animated blobs (Light/Dark mode specific)
+- **State**: `searchQuery`, `viewMode`, `activeFilter`, `activeCategory`
+- **Components**: `Hero`, `CategoryNav` (Horizontal with overflow), `AppGrid` (4-column), `AppCard`
+
+### 2.4 Category Navigation (`CategoryNav.tsx`)
+- **Behavior**: Horizontal tab-style navigation below Hero.
+- **Overflow Logic**: Displays max 5 categories. Excess categories moved to a "More" dropdown.
+- **Animation**: `framer-motion` for active underline and dropdown fade/slide.
+
+### 2.4 Card Interaction Layer (`AppItem.tsx`)
+- **Motion**: Uses `framer-motion` for staggered entry (`delay: index * 0.05`).
+- **Hover State**: 
+  - `translate-y` (-4px)
+  - `shadow-xl` (custom dark mode shadow)
+  - `border-slate-500/40`
+- **Glow**: Absolute positioned `div` with `inset-[-1px]`, `blur-md`, and category-specific gradient.
+- **Feedback**: `active:scale-[0.98]` for click response.
 
 ### 2.3 Admin Module (`AdminModule.tsx`)
 - **Layout**: `Header`, `MainContent`

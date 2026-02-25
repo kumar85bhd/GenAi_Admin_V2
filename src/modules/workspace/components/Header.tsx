@@ -80,7 +80,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-20 glass-panel border-b border-white/10 flex items-center justify-between px-8 sticky top-0 z-40 transition-all duration-200">
+    <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-8 sticky top-0 z-40 transition-all duration-200">
       <div className="flex items-center gap-8 flex-1">
         <button 
           onClick={onMenuClick}

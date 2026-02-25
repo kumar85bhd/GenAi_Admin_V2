@@ -80,35 +80,6 @@ const Sidebar: React.FC<SidebarProps> = ({
             </button>
           </div>
         </div>
-
-        <div className="px-3">
-          {!isCollapsed && (
-            <p className="px-3 text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-3 pl-4">
-              Categories
-            </p>
-          )}
-          <div className="space-y-0.5">
-            {categories.map(cat => (
-              <button
-                key={cat}
-                onClick={() => onNavigate('dashboard', cat)}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 mb-1 transition-all duration-200 group relative rounded-lg ${
-                  activeCategory === cat 
-                    ? 'bg-primary/10 text-primary font-semibold' 
-                    : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                } focus:outline-none focus:ring-2 focus:ring-ring/40`}
-              >
-                {activeCategory === cat && (
-                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 bg-primary rounded-r-full" />
-                )}
-                <span className={`transition-colors ${activeCategory === cat ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'}`}>
-                  {React.cloneElement(getCategoryIcon(cat) as React.ReactElement, { size: 18 })}
-                </span>
-                {!isCollapsed && <span className="truncate text-sm">{cat}</span>}
-              </button>
-            ))}
-          </div>
-        </div>
       </div>
     </aside>
   );

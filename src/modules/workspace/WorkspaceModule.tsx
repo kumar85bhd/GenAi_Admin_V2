@@ -1,8 +1,10 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Header from './components/Header';
+import Hero from './components/Hero';
 import AppItem from './components/AppItem';
 import DetailPanel from './components/DetailPanel';
+import CategoryNav from './components/CategoryNav';
 import ToastContainer, { ToastMessage, ToastType } from '../../shared/components/Toast';
 import { AppData, FilterType, ViewMode } from '../../shared/types';
 import { api } from '../../shared/services/api';
@@ -128,7 +130,7 @@ const WorkspaceModule: React.FC = () => {
 
     return (
       <motion.div 
-        className={`grid gap-6 ${viewMode === 'card' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'} pb-20`}
+        className={`grid gap-6 ${viewMode === 'card' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'} pb-20`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ staggerChildren: 0.1 }}
@@ -151,6 +153,9 @@ const WorkspaceModule: React.FC = () => {
     <div className="flex h-screen bg-background overflow-hidden transition-colors duration-300 text-foreground relative">
       {/* Animated AI Background */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
+        {/* Ambient Gradient Base */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-100/30 via-blue-50/30 to-indigo-50/30 dark:bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] dark:from-purple-900/20 dark:via-background/0 dark:to-background/0" />
+        
         <div className="absolute top-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-indigo-500/30 dark:bg-indigo-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob"></div>
         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-emerald-500/30 dark:bg-emerald-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob animation-delay-2000"></div>
         <div className="absolute bottom-[-20%] left-[20%] w-[40rem] h-[40rem] bg-fuchsia-500/30 dark:bg-fuchsia-600/20 rounded-full mix-blend-multiply dark:mix-blend-screen filter blur-[100px] opacity-70 animate-blob animation-delay-4000"></div>
@@ -185,14 +190,34 @@ const WorkspaceModule: React.FC = () => {
 
         <div className="flex-1 overflow-y-auto p-6 md:p-8 scroll-smooth no-scrollbar">
           <div className="max-w-7xl mx-auto w-full">
+             {/* Show Hero only on main dashboard view without search */}
+             {!searchQuery && activeFilter === 'dashboard' && !activeCategory && (
+               <motion.div
+                 initial={{ opacity: 0, y: 20 }}
+                 animate={{ opacity: 1, y: 0 }}
+                 transition={{ duration: 0.5 }}
+               >
+                 <Hero />
+               </motion.div>
+             )}
+
+             {/* Category Navigation (Horizontal) */}
+             {!searchQuery && activeFilter === 'dashboard' && (
+               <CategoryNav 
+                 categories={categories} 
+                 activeCategory={activeCategory} 
+                 onSelectCategory={(cat) => handleNavigate('dashboard', cat)} 
+               />
+             )}
+
              <motion.div 
                 key={activeFilter + '-' + activeCategory} 
-                className="glass-panel rounded-3xl relative overflow-hidden"
+                className="glass-panel rounded-3xl relative overflow-hidden bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 shadow-sm"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
               >
-               <div className="p-8">
+               <div className="p-6 md:p-8">
                  {renderContent()}
                </div>
              </motion.div>

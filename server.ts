@@ -9,6 +9,15 @@ import authConfig from './backend/auth/config';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
 
+// Extend Express Request interface to include user property
+declare global {
+  namespace Express {
+    interface Request {
+      user?: any;
+    }
+  }
+}
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -56,7 +65,7 @@ async function startServer() {
   });
 
   app.get('/api/auth/config', (req, res) => {
-    res.json({ mode: authConfig.AUTH_MODE });
+    res.json({ mode: authConfig.AUTH_MODE, algorithm: authConfig.JWT_ALGORITHM });
   });
 
   app.post('/api/auth/login', (req, res) => {
@@ -75,7 +84,7 @@ async function startServer() {
           { email: user.email, name: user.name },
           privateKey,
           { 
-            expiresIn: '1h',
+            expiresIn: '7d',
             algorithm: authConfig.JWT_ALGORITHM as jwt.Algorithm,
             ...(authConfig.JWT_ISSUER ? { issuer: authConfig.JWT_ISSUER } : {}),
             ...(authConfig.JWT_AUDIENCE ? { audience: authConfig.JWT_AUDIENCE } : {})
@@ -88,9 +97,9 @@ async function startServer() {
       } else {
         res.status(401).json({ error: 'Invalid credentials' });
       }
-    } catch (error) {
-      console.error('Error reading users.json', error);
-      res.status(500).json({ error: 'Internal server error' });
+    } catch (error: any) {
+      console.error('Login error:', error);
+      res.status(500).json({ error: 'Internal server error', details: error.message });
     }
   });
 
