@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Header from './components/Header';
-import Hero from './components/Hero';
 import AppItem from './components/AppItem';
 import DetailPanel from './components/DetailPanel';
 import SidebarNavigation from './components/SidebarNavigation';
 import CardSurfaceContainer from './components/CardSurfaceContainer';
+import RobotAnimation from './components/RobotAnimation';
 import ToastContainer, { ToastMessage, ToastType } from '../../shared/components/Toast';
 import { AppData, FilterType, ViewMode } from '../../shared/types';
 import { api } from '../../shared/services/api';
@@ -179,20 +179,14 @@ const WorkspaceModule: React.FC = () => {
 
         <div 
           ref={mainContentRef}
-          className="flex-1 overflow-y-auto scroll-smooth no-scrollbar relative"
+          className="flex-1 overflow-y-auto scroll-smooth no-scrollbar relative flex"
         >
-           <div className="p-6 md:p-8 max-w-7xl mx-auto w-full space-y-4">
-             {/* Show Hero only on main dashboard view without search */}
-             {!searchQuery && activeFilter === 'dashboard' && !activeCategory && (
-               <motion.div
-                 initial={{ opacity: 0, y: 20 }}
-                 animate={{ opacity: 1, y: 0 }}
-                 transition={{ duration: 0.5 }}
-               >
-                 <Hero />
-               </motion.div>
-             )}
+           {/* Left Robot */}
+           <div className="hidden 2xl:flex w-64 flex-shrink-0 items-center justify-center sticky top-0 h-[calc(100vh-64px)]">
+             <RobotAnimation scale={0.6} />
+           </div>
 
+           <div className="p-6 md:p-8 w-full mx-auto space-y-4 flex-1 max-w-7xl">
              <AnimatePresence mode="wait">
                <motion.div 
                   key={activeFilter + '-' + activeCategory} 
@@ -208,8 +202,15 @@ const WorkspaceModule: React.FC = () => {
                </motion.div>
              </AnimatePresence>
           </div>
+
+          {/* Right Robot */}
+          <div className="hidden 2xl:flex w-64 flex-shrink-0 items-center justify-center sticky top-0 h-[calc(100vh-64px)]">
+            <RobotAnimation scale={0.6} />
+          </div>
         </div>
       </main>
+
+
 
       <DetailPanel 
         app={selectedApp} 

@@ -43,9 +43,16 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
-  // In-memory "DB" for favorites
-  let favorites = new Set([1, 2, 3, 12]);
-  
+  // In-memory "DB" for user preferences
+  const userPreferences: Record<string, { theme: string, favorites: number[] }> = {};
+
+  const getPrefs = (email: string) => {
+    if (!userPreferences[email]) {
+      userPreferences[email] = { theme: 'dark', favorites: [] };
+    }
+    return userPreferences[email];
+  };
+
   const CONFIG_PATH = path.join(process.cwd(), 'config.json');
 
   const loadConfig = () => {
@@ -107,27 +114,52 @@ async function startServer() {
     res.json(req.user);
   });
 
+  // Preferences Routes
+  app.get('/api/preferences', authMiddleware, (req, res) => {
+    const email = req.user.email;
+    res.json(getPrefs(email));
+  });
+
+  app.put('/api/preferences/theme', authMiddleware, (req, res) => {
+    const email = req.user.email;
+    const { theme } = req.body;
+    getPrefs(email).theme = theme;
+    res.json(getPrefs(email));
+  });
+
+  app.put('/api/preferences/favorites', authMiddleware, (req, res) => {
+    const email = req.user.email;
+    const { favorites } = req.body;
+    getPrefs(email).favorites = favorites;
+    res.json(getPrefs(email));
+  });
+
   // Protected Routes
   app.get('/api/apps', authMiddleware, (req, res) => {
     const config = loadConfig();
+    const prefs = getPrefs(req.user.email);
+    const favSet = new Set(prefs.favorites);
     const apps = config.apps.map((app: any) => ({
       ...app,
-      isFavorite: favorites.has(app.id)
+      isFavorite: favSet.has(app.id)
     }));
     res.json(apps);
   });
 
   app.post('/api/apps/:id/favorite', authMiddleware, (req, res) => {
     const appId = parseInt(req.params.id as string);
+    const prefs = getPrefs(req.user.email);
+    const favSet = new Set(prefs.favorites);
     let action = '';
-    if (favorites.has(appId)) {
-      favorites.delete(appId);
+    if (favSet.has(appId)) {
+      favSet.delete(appId);
       action = 'removed';
     } else {
-      favorites.add(appId);
+      favSet.add(appId);
       action = 'added';
     }
-    res.json({ status: 'success', action, isFavorite: favorites.has(appId) });
+    prefs.favorites = Array.from(favSet);
+    res.json({ status: 'success', action, isFavorite: favSet.has(appId) });
   });
 
   app.get('/api/metrics/:id', authMiddleware, (req, res) => {
