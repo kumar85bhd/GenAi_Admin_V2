@@ -155,4 +155,9 @@ To test the application as a standard user or an admin, simply log out and log b
   - Body scroll locked (`overflow-hidden`).
   - Scrollbar visually hidden but functional.
 - **Hero**: Integrated into scrollable area, triggering nav collapse when scrolled past.
-- **Category System**: Dynamic tabs adapt to collapsed state (labels hide/show).
+## 12. Admin Architecture (Phase 6 Update)
+- **Structured Dashboard Console**: The Admin page has been refactored into a clean, neutral Infrastructure Dashboard.
+- **Layout**: Features a left sidebar (`AdminSidebar.tsx`) for filtering services by category, and a main content area (`AdminDashboardCards.tsx`) displaying grouped service cards.
+- **Design Philosophy**: Strict adherence to a stable, professional UI. Removed all animations, glow effects, and mock polling.
+- **Metrics Handling**: Service cards (`AdminCard.tsx`) fetch their own metrics on mount with a manual refresh option, ensuring no background polling overhead.
+- **Color Strategy**: Utilizes a neutral slate palette with indigo accents for active states, supporting both light and dark modes seamlessly.

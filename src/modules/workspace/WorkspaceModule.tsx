@@ -9,7 +9,7 @@ import RobotAnimation from './components/RobotAnimation';
 import ToastContainer, { ToastMessage, ToastType } from '../../shared/components/Toast';
 import { AppData, FilterType, ViewMode } from '../../shared/types';
 import { api } from '../../shared/services/api';
-import { PackageOpen, Loader2 } from 'lucide-react';
+import { PackageOpen, Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useAuth } from '../../shared/context/useAuth';
 import { useUserPreference } from '../../shared/context/useUserPreference';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -18,9 +18,11 @@ const WorkspaceModule: React.FC = () => {
   const [apps, setApps] = useState<AppData[]>([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
+  const [cardsPerRow, setCardsPerRow] = useState<number>(4);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterType>('dashboard');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
   const [showSplash, setShowSplash] = useState(() => {
@@ -55,10 +57,15 @@ const WorkspaceModule: React.FC = () => {
     const initWorkspace = async () => {
       setLoading(true);
       
-      const { data, isLive: liveStatus } = await api.getApps();
-      setApps(data);
+      const [appsRes, configRes] = await Promise.all([
+        api.getApps(),
+        api.getConfig()
+      ]);
       
-      if (!liveStatus) {
+      setApps(appsRes.data);
+      setCardsPerRow(configRes.cardsPerRow);
+      
+      if (!appsRes.isLive) {
         addToast("Backend server is unreachable. Showing cached tools.", "error");
       }
       
@@ -85,14 +92,24 @@ const WorkspaceModule: React.FC = () => {
   const handleNavigate = (filter: FilterType, category: string | null) => {
     setActiveFilter(filter);
     setActiveCategory(category);
+    setCurrentPage(1);
     // Scroll to top when navigating
     if (mainContentRef.current) {
       mainContentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
+  const handleSearchQueryChange = (q: string) => {
+    setSearchQuery(q);
+    setCurrentPage(1);
+  };
+
   const filteredApps = useMemo(() => {
     let result = apps.map(app => ({ ...app, isFavorite: favorites.includes(app.id) }));
+    
+    // Default sort alphabetically by name
+    result.sort((a, b) => a.name.localeCompare(b.name));
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(app => 
@@ -104,12 +121,20 @@ const WorkspaceModule: React.FC = () => {
     } else if (activeFilter === 'dashboard' && activeCategory) {
       result = result.filter(app => app.category === activeCategory);
     }
-    return result.slice(0, 12);
+    return result;
   }, [apps, favorites, searchQuery, activeFilter, activeCategory]);
 
+  const itemsPerPage = 12;
+  const totalPages = Math.ceil(filteredApps.length / itemsPerPage);
+  
+  const paginatedApps = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    return filteredApps.slice(startIndex, startIndex + itemsPerPage);
+  }, [filteredApps, currentPage]);
+
   const selectedApp = useMemo(() => 
-    apps.find(a => a.id === selectedAppId) || null
-  , [apps, selectedAppId]);
+    filteredApps.find(a => a.id === selectedAppId) || null
+  , [filteredApps, selectedAppId]);
 
   const renderContent = () => {
     if (loading) {
@@ -126,35 +151,70 @@ const WorkspaceModule: React.FC = () => {
         <div className="flex flex-col items-center justify-center h-96 text-muted-foreground">
           <PackageOpen className="w-16 h-16 mb-4 opacity-50" />
           <p className="text-lg font-medium">No tools found.</p>
-          <button onClick={() => {setSearchQuery(''); setActiveCategory(null); setActiveFilter('dashboard');}} className="mt-2 text-primary hover:underline">
+          <button onClick={() => {setSearchQuery(''); setActiveCategory(null); setActiveFilter('dashboard'); setCurrentPage(1);}} className="mt-2 text-primary hover:underline">
             Clear filters
           </button>
         </div>
       );
     }
 
+    const getGridColsClass = () => {
+      if (viewMode === 'icon') {
+        return 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6';
+      }
+      return cardsPerRow === 3 
+        ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
+        : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4';
+    };
+
     return (
-      <CardSurfaceContainer>
-        <motion.div 
-          className={`grid gap-5 ${viewMode === 'card' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'} pb-10`}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ staggerChildren: 0.05 }}
-        >
-          <AnimatePresence mode='popLayout'>
-            {filteredApps.map((app, index) => (
-              <AppItem 
-                key={app.id} 
-                app={app} 
-                viewMode={viewMode} 
-                onToggleFav={handleToggleFav}
-                onOpenDetail={setSelectedAppId}
-                index={index}
-              />
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </CardSurfaceContainer>
+      <div className="flex flex-col h-full">
+        <CardSurfaceContainer>
+          <motion.div 
+            className={`grid gap-5 ${getGridColsClass()} pb-6`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ staggerChildren: 0.05 }}
+          >
+            <AnimatePresence mode='popLayout'>
+              {paginatedApps.map((app, index) => (
+                <AppItem 
+                  key={app.id} 
+                  app={app} 
+                  viewMode={viewMode} 
+                  onToggleFav={handleToggleFav}
+                  onOpenDetail={setSelectedAppId}
+                  index={index}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        </CardSurfaceContainer>
+        
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-4 pb-4">
+            <button
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2 rounded-full bg-secondary text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              aria-label="Previous page"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <span className="text-sm font-medium text-muted-foreground">
+              Page {currentPage} of {totalPages}
+            </span>
+            <button
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2 rounded-full bg-secondary text-foreground disabled:opacity-50 disabled:cursor-not-allowed hover:bg-secondary/80 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500/50"
+              aria-label="Next page"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+        )}
+      </div>
     );
   };
 
@@ -227,7 +287,7 @@ const WorkspaceModule: React.FC = () => {
         <Header 
           userName={userName}
           searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
+          setSearchQuery={handleSearchQueryChange}
           viewMode={viewMode}
           setViewMode={setViewMode}
           totalApps={apps.length}

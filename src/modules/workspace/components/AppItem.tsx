@@ -24,16 +24,29 @@ const getIcon = (iconName: string) => {
   return icons[iconName] || <Zap />;
 };
 
+// Highlight palettes for dynamic assignment
+const highlightPalettes = [
+  { bg: 'bg-indigo-500/10', text: 'text-indigo-500 dark:text-indigo-400', border: 'group-hover:border-indigo-500/50', shadow: 'group-hover:shadow-indigo-500/20', gradient: 'from-indigo-500 to-blue-600' },
+  { bg: 'bg-violet-500/10', text: 'text-violet-500 dark:text-violet-400', border: 'group-hover:border-violet-500/50', shadow: 'group-hover:shadow-violet-500/20', gradient: 'from-violet-500 to-purple-600' },
+  { bg: 'bg-cyan-500/10', text: 'text-cyan-500 dark:text-cyan-400', border: 'group-hover:border-cyan-500/50', shadow: 'group-hover:shadow-cyan-500/20', gradient: 'from-cyan-400 to-blue-500' },
+  { bg: 'bg-teal-500/10', text: 'text-teal-500 dark:text-teal-400', border: 'group-hover:border-teal-500/50', shadow: 'group-hover:shadow-teal-500/20', gradient: 'from-teal-400 to-emerald-500' },
+  { bg: 'bg-amber-500/10', text: 'text-amber-500 dark:text-amber-400', border: 'group-hover:border-amber-500/50', shadow: 'group-hover:shadow-amber-500/20', gradient: 'from-amber-400 to-orange-500' },
+  { bg: 'bg-red-500/10', text: 'text-red-500 dark:text-red-400', border: 'group-hover:border-red-500/50', shadow: 'group-hover:shadow-red-500/20', gradient: 'from-red-500 to-rose-600' },
+  { bg: 'bg-lime-500/10', text: 'text-lime-500 dark:text-lime-400', border: 'group-hover:border-lime-500/50', shadow: 'group-hover:shadow-lime-500/20', gradient: 'from-lime-400 to-green-500' },
+  // Gray is considered last
+  { bg: 'bg-slate-500/10', text: 'text-slate-500 dark:text-slate-400', border: 'group-hover:border-slate-500/50', shadow: 'group-hover:shadow-slate-500/20', gradient: 'from-slate-400 to-slate-600' }
+];
+
 // Category styling helper - Semantic Colors
 const getCategoryStyles = (category: string) => {
-  const styles: Record<string, { bg: string, text: string, border: string, shadow: string, gradient: string }> = {
-    'Productivity': { bg: 'bg-fuchsia-500/10', text: 'text-fuchsia-500 dark:text-fuchsia-400', border: 'group-hover:border-fuchsia-500/50', shadow: 'group-hover:shadow-fuchsia-500/20', gradient: 'from-fuchsia-500 to-purple-600' },
-    'Knowledge': { bg: 'bg-emerald-500/10', text: 'text-emerald-500 dark:text-emerald-400', border: 'group-hover:border-emerald-500/50', shadow: 'group-hover:shadow-emerald-500/20', gradient: 'from-emerald-400 to-cyan-500' },
-    'Platform': { bg: 'bg-orange-500/10', text: 'text-orange-500 dark:text-orange-400', border: 'group-hover:border-orange-500/50', shadow: 'group-hover:shadow-orange-500/20', gradient: 'from-orange-400 to-rose-500' },
-    'Customer': { bg: 'bg-blue-500/10', text: 'text-blue-500 dark:text-blue-400', border: 'group-hover:border-blue-500/50', shadow: 'group-hover:shadow-blue-500/20', gradient: 'from-blue-400 to-indigo-500' },
-    'Presentation': { bg: 'bg-pink-500/10', text: 'text-pink-500 dark:text-pink-400', border: 'group-hover:border-pink-500/50', shadow: 'group-hover:shadow-pink-500/20', gradient: 'from-pink-400 to-rose-500' },
-  };
-  return styles[category] || { bg: 'bg-slate-500/10', text: 'text-slate-500 dark:text-slate-400', border: 'group-hover:border-slate-500/50', shadow: 'group-hover:shadow-slate-500/20', gradient: 'from-slate-400 to-slate-600' };
+  // Hash string to pick a consistent highlight color
+  let hash = 0;
+  for (let i = 0; i < category.length; i++) {
+    hash = category.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  // Use highlightPalettes.length - 1 to exclude the last gray item from normal assignment
+  const index = Math.abs(hash) % (highlightPalettes.length - 1);
+  return highlightPalettes[index];
 };
 
 interface AppItemProps {

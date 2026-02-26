@@ -9,7 +9,6 @@ export enum HealthStatus {
 export interface Metric {
   label: string;
   value: string | number;
-  history: number[];
 }
 
 export interface Service {
@@ -29,10 +28,9 @@ export interface Service {
 export interface AppConfig {
   platformName: string;
   environment: string;
-  refreshIntervals: number[];
   categories: {
     id: string;
     name: string;
-    services: { id: string; name: string; type: string }[];
+    services: { id: string; name: string; type: string; url?: string }[];
   }[];
 }

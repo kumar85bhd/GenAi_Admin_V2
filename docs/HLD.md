@@ -9,7 +9,7 @@ The application follows a full-stack architecture with a modular monolith fronte
 ### 2.1 Modules
 - **Backend (`/backend`)**: FastAPI server handling authentication, authorization, and API routes.
 - **Workspace Module (`/src/modules/workspace`)**: The primary interface for general users. It allows users to browse, search, and launch AI applications.
-- **Admin Module (`/src/modules/admin`)**: A restricted area for administrators to monitor service health, view metrics, and manage platform configurations.
+- **Admin Module (`/src/modules/admin`)**: A restricted area for administrators to monitor service health and metrics. It features a structured layout with a left sidebar for category filtering and a main content area displaying grouped service cards.
 - **Shared Layer (`/src/shared`)**: Contains reusable UI components, contexts (Auth, Preferences), and utility functions shared across both modules.
 
 ### 2.2 Authentication & Authorization

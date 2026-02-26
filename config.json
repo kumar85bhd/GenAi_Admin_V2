@@ -1,4 +1,7 @@
 {
+  "uiConfig": {
+    "cardsPerRow": 3
+  },
   "apps": [
     { "id": 1, "name": "Meetzy", "icon": "Zap", "category": "Productivity", "url": "https://example.com", "desc": "AI-powered meeting summaries and action items.", "baseActivity": "Next Meeting 3:30 PM" },
     { "id": 2, "name": "Talk2Docs", "icon": "FileText", "category": "Knowledge", "url": "https://example.com", "desc": "Chat with your documents securely.", "baseActivity": "Last Query: HR Policy" },

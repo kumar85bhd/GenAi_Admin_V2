@@ -68,9 +68,9 @@
 - **Feedback**: `active:scale-[0.98]` for click response.
 
 ### 2.3 Admin Module (`AdminModule.tsx`)
-- **Layout**: `Header`, `MainContent`
-- **State**: `services`, `config`, `viewType`
-- **Components**: `HealthSummaryCard`, `ServiceCard`, `ServiceDrawer`
+- **Layout**: `AdminSidebar` (Left), `MainContent` (Right)
+- **State**: `services`, `config`, `activeCategory`
+- **Components**: `AdminSidebar`, `AdminDashboardCards`, `AdminCard`
 
 ## 3. Context Providers
 

@@ -7,6 +7,24 @@ export const api = {
     return true;
   },
 
+  getConfig: async (): Promise<{ cardsPerRow: number }> => {
+    try {
+      const token = localStorage.getItem('access_token');
+      const res = await fetch('/api/config', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        return await res.json();
+      }
+      return { cardsPerRow: 4 };
+    } catch (error) {
+      console.error('Failed to fetch config', error);
+      return { cardsPerRow: 4 };
+    }
+  },
+
   getApps: async (): Promise<{ data: AppData[], isLive: boolean }> => {
     try {
       const token = localStorage.getItem('access_token');

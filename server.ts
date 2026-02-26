@@ -134,6 +134,16 @@ async function startServer() {
     res.json(getPrefs(email));
   });
 
+  app.get('/api/config', authMiddleware, (req, res) => {
+    const config = loadConfig();
+    let cardsPerRow = config.uiConfig?.cardsPerRow || 4;
+    // Enforce 3 or 4
+    if (cardsPerRow !== 3 && cardsPerRow !== 4) {
+      cardsPerRow = 4;
+    }
+    res.json({ cardsPerRow });
+  });
+
   // Protected Routes
   app.get('/api/apps', authMiddleware, (req, res) => {
     const config = loadConfig();

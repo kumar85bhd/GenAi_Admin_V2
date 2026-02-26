@@ -94,7 +94,15 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
 };
 
 
-const NavItem = ({ children, isExpanded, isActive, onClick, label }) => {
+interface NavItemProps {
+  children: React.ReactNode;
+  isExpanded: boolean;
+  isActive: boolean;
+  onClick: () => void;
+  label: string;
+}
+
+const NavItem: React.FC<NavItemProps> = ({ children, isExpanded, isActive, onClick, label }) => {
     const itemContent = (
         <motion.button
             onClick={onClick}
@@ -115,7 +123,7 @@ const NavItem = ({ children, isExpanded, isActive, onClick, label }) => {
         </motion.button>
     );
 
-    return isExpanded ? itemContent : <Tooltip content={label} side="right">{itemContent}</Tooltip>;
+    return isExpanded ? itemContent : <Tooltip content={label} position="right">{itemContent}</Tooltip>;
 }
 
 export default SidebarNavigation;

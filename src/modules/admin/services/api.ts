@@ -1,10 +1,9 @@
-import { AppConfig } from '../types';
+import { AppConfig, Metric } from '../types';
 
 export const fetchConfig = async (): Promise<AppConfig> => {
   return {
-    platformName: 'Agentic Admin',
+    platformName: 'Infrastructure Console',
     environment: 'Production',
-    refreshIntervals: [15000, 30000, 60000],
     categories: [
       {
         id: 'core',
@@ -34,8 +33,20 @@ export const fetchConfig = async (): Promise<AppConfig> => {
   };
 };
 
-export const fetchHealthData = async () => {
-  // Mock implementation
-  return {};
+/**
+ * Fetches metrics for a specific service.
+ * Uses try/catch to handle potential endpoint failures.
+ */
+export const fetchServiceMetrics = async (serviceId: string): Promise<Metric[]> => {
+  try {
+    // Simulated network delay
+    await new Promise(resolve => setTimeout(resolve, 300));
+    return [
+      { label: 'CPU', value: `${Math.floor(Math.random() * 20) + 5}%` },
+      { label: 'Memory', value: `${Math.floor(Math.random() * 500) + 100}MB` }
+    ];
+  } catch (error) {
+    throw error;
+  }
 };
 
