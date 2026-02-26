@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useEffect, useState } from 'react';
 
 interface PreferencesContextType {
   isDarkMode: boolean;
@@ -7,7 +8,7 @@ interface PreferencesContextType {
   toggleOpenInNewTab: () => void;
 }
 
-const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
+export const PreferencesContext = createContext<PreferencesContextType | undefined>(undefined);
 
 export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Dark Mode State
@@ -52,12 +53,4 @@ export const PreferencesProvider: React.FC<{ children: React.ReactNode }> = ({ c
       {children}
     </PreferencesContext.Provider>
   );
-};
-
-export const usePreferences = () => {
-  const context = useContext(PreferencesContext);
-  if (context === undefined) {
-    throw new Error('usePreferences must be used within a PreferencesProvider');
-  }
-  return context;
 };

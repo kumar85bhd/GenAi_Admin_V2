@@ -1,4 +1,4 @@
-import { AppConfig, HealthStatus } from '../types';
+import { AppConfig } from '../types';
 
 export const fetchConfig = async (): Promise<AppConfig> => {
   return {

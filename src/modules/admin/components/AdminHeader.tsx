@@ -1,7 +1,7 @@
 import React from 'react';
-import { Bell, Search, Menu, User, LogOut } from 'lucide-react';
-import { usePreferences } from '../../../shared/context/PreferencesContext';
-import { useAuth } from '../../../shared/context/AuthContext';
+import { Bell, Search, LogOut } from 'lucide-react';
+import { usePreferences } from '../../../shared/context/usePreferences';
+import { useAuth } from '../../../shared/context/useAuth';
 import { useNavigate } from 'react-router-dom';
 
 interface AdminHeaderProps {

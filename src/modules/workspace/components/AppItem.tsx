@@ -2,7 +2,7 @@ import React from 'react';
 import { Star, ExternalLink, Zap, FileText, Wrench, Cpu, BarChart3, MessageSquare, Shield, TrendingUp, Book, Link, Code, Palette, ArrowUpRight, Activity } from 'lucide-react';
 import { AppData, ViewMode } from '../../../shared/types';
 import { Tooltip } from '../../../shared/components/ui/Tooltip';
-import { usePreferences } from '../../../shared/context/PreferencesContext';
+import { usePreferences } from '../../../shared/context/usePreferences';
 import { motion } from 'framer-motion';
 
 // Icon mapping helper
@@ -63,10 +63,14 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: index * 0.05 }}
       >
-        <Tooltip content={app.isFavorite ? "Remove from Favorites" : "Add to Favorites"} className="z-50">
+        <Tooltip 
+          content={app.isFavorite ? "Remove from Favorites" : "Add to Favorites"} 
+          className="absolute top-2 right-2 z-50"
+          position="left"
+        >
           <button 
             onClick={(e) => { e.stopPropagation(); onToggleFav(app.id); }}
-            className={`absolute top-2 right-2 p-1.5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring/40 ${
+            className={`p-1.5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring/40 ${
               app.isFavorite 
                 ? 'text-amber-400 bg-amber-500/10' 
                 : 'text-muted-foreground/50 hover:bg-secondary'
@@ -107,15 +111,15 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
       <div className={`absolute inset-0 bg-gradient-to-br ${catStyles.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300 pointer-events-none rounded-xl`} />
 
       <div className="p-4 flex-1 relative z-10">
-        <div className="flex items-start justify-between mb-3">
-          <div className={`w-10 h-10 rounded-lg flex items-center justify-center shadow-sm bg-gradient-to-br ${catStyles.gradient} text-white transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
-            {React.cloneElement(getIcon(app.icon) as React.ReactElement, { size: 20 })}
+        <div className="flex items-start justify-between mb-2">
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center shadow-sm bg-gradient-to-br ${catStyles.gradient} text-white transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3`}>
+            {React.cloneElement(getIcon(app.icon) as React.ReactElement, { size: 18 })}
           </div>
           <div className="flex flex-col items-end gap-1">
              <Tooltip content={app.isFavorite ? "Remove from Favorites" : "Add to Favorites"}>
               <button 
                 onClick={(e) => { e.stopPropagation(); onToggleFav(app.id); }}
-                className={`p-1.5 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring/40 ${
+                className={`p-1 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring/40 ${
                   app.isFavorite 
                     ? 'text-amber-400 bg-amber-500/10' 
                     : 'text-muted-foreground/50 hover:bg-secondary'
@@ -127,7 +131,7 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
           </div>
         </div>
 
-        <h3 className={`font-bold text-base text-foreground mb-1 transition-colors tracking-tight truncate ${catStyles.text}`}>
+        <h3 className={`font-bold text-sm text-foreground mb-0.5 transition-colors tracking-tight truncate ${catStyles.text}`}>
           {app.name}
         </h3>
         <p className="text-xs text-muted-foreground leading-relaxed truncate font-sans">
@@ -139,7 +143,7 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
         <Tooltip content={`Launch in ${openInNewTab ? 'new' : 'same'} tab`}>
           <button 
             onClick={handleLaunch}
-            className={`group/btn flex items-center gap-1.5 bg-gradient-to-r ${catStyles.gradient} hover:brightness-110 text-white text-[10px] font-bold uppercase tracking-wider py-2 px-3.5 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring/40`}
+            className={`group/btn flex items-center gap-1.5 bg-gradient-to-r ${catStyles.gradient} hover:brightness-110 text-white text-[10px] font-bold uppercase tracking-wider py-1.5 px-3 rounded-md transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring/40`}
           >
             <span>Launch</span>
             <span className="group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 transition-transform duration-200">
@@ -149,9 +153,9 @@ const AppItem: React.FC<AppItemProps> = ({ app, viewMode, onToggleFav, onOpenDet
         </Tooltip>
 
         <div className="flex items-center gap-2 opacity-70 group-hover:opacity-100 transition-opacity duration-200">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/10 dark:bg-black/20 border border-white/10 backdrop-blur-sm">
+          <div className="flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/10 dark:bg-black/20 border border-white/10 backdrop-blur-sm">
              <Activity size={10} className="text-emerald-400" />
-             <span className="text-[10px] font-medium text-foreground truncate max-w-[80px]">{app.baseActivity.split(':')[0]}</span>
+             <span className="text-[10px] font-medium text-foreground truncate max-w-[70px]">{app.baseActivity.split(':')[0]}</span>
           </div>
         </div>
       </div>

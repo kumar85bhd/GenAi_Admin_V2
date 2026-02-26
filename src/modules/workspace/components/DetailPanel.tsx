@@ -3,7 +3,7 @@ import { X, ExternalLink, Activity, Clock, Star, Share2, Zap, ArrowUpRight } fro
 import { AppData, AppMetric } from '../../../shared/types';
 import { api } from '../../../shared/services/api';
 import { Tooltip } from '../../../shared/components/ui/Tooltip';
-import { usePreferences } from '../../../shared/context/PreferencesContext';
+import { usePreferences } from '../../../shared/context/usePreferences';
 
 interface DetailPanelProps {
   app: AppData | null;
@@ -17,13 +17,20 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) 
   const { openInNewTab } = usePreferences();
 
   useEffect(() => {
+    let isMounted = true;
     if (app) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
       api.getMetrics(app.id).then(({ data }) => {
-        setMetric(data);
-        setLoading(false);
+        if (isMounted) {
+          setMetric(data);
+          setLoading(false);
+        }
       });
     }
+    return () => {
+      isMounted = false;
+    };
   }, [app]);
 
   if (!app) return null;
@@ -42,7 +49,7 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) 
       <div className="w-full max-w-md bg-card h-full shadow-2xl pointer-events-auto transform transition-transform flex flex-col animate-in slide-in-from-right duration-300 border-l border-border">
         <div className="p-6 border-b border-border flex items-center justify-between bg-secondary/50">
           <div className="flex items-center gap-3">
-            <Tooltip content="Close Panel">
+            <Tooltip content="Close Panel" position="bottom">
               <button onClick={onClose} className="p-2 -ml-2 hover:bg-secondary rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-ring/40">
                 <X size={20} className="text-muted-foreground" />
               </button>
@@ -50,7 +57,7 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) 
             <span className="text-sm font-medium text-muted-foreground">App Details</span>
           </div>
           <div className="flex items-center gap-2">
-            <Tooltip content={app.isFavorite ? "Remove from Favorites" : "Add to Favorites"}>
+            <Tooltip content={app.isFavorite ? "Remove from Favorites" : "Add to Favorites"} position="bottom">
               <button 
                 onClick={() => onToggleFav(app.id)}
                 className={`p-2 rounded-full border transition-all focus:outline-none focus:ring-2 focus:ring-ring/40 ${
@@ -62,7 +69,7 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) 
                 <Star size={18} fill={app.isFavorite ? "currentColor" : "none"} />
               </button>
             </Tooltip>
-            <Tooltip content="Share App">
+            <Tooltip content="Share App" position="bottom">
               <button className="p-2 rounded-full bg-secondary border border-border text-muted-foreground hover:text-primary hover:border-primary/20 transition-all focus:outline-none focus:ring-2 focus:ring-ring/40">
                 <Share2 size={18} />
               </button>

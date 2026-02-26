@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import Header from './components/Header';
+import Hero from './components/Hero';
 import AppItem from './components/AppItem';
 import DetailPanel from './components/DetailPanel';
 import SidebarNavigation from './components/SidebarNavigation';
@@ -9,25 +10,37 @@ import ToastContainer, { ToastMessage, ToastType } from '../../shared/components
 import { AppData, FilterType, ViewMode } from '../../shared/types';
 import { api } from '../../shared/services/api';
 import { PackageOpen, Loader2 } from 'lucide-react';
-import { useAuth } from '../../shared/context/AuthContext';
-import { useUserPreference } from '../../shared/context/UserPreferenceContext';
+import { useAuth } from '../../shared/context/useAuth';
+import { useUserPreference } from '../../shared/context/useUserPreference';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const WorkspaceModule: React.FC = () => {
   const [apps, setApps] = useState<AppData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [isLive, setIsLive] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>('card');
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<FilterType>('dashboard');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [selectedAppId, setSelectedAppId] = useState<number | null>(null);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [showSplash, setShowSplash] = useState(() => {
+    return !sessionStorage.getItem('splashShown');
+  });
   const mainContentRef = useRef<HTMLDivElement>(null);
 
   const { user } = useAuth();
   const userName = user?.name || "Guest";
   const { favorites, toggleFavorite } = useUserPreference();
+
+  useEffect(() => {
+    if (showSplash) {
+      sessionStorage.setItem('splashShown', 'true');
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash]);
 
   const addToast = (message: string, type: ToastType = 'info') => {
     const id = Math.random().toString(36).substring(7);
@@ -44,7 +57,6 @@ const WorkspaceModule: React.FC = () => {
       
       const { data, isLive: liveStatus } = await api.getApps();
       setApps(data);
-      setIsLive(liveStatus);
       
       if (!liveStatus) {
         addToast("Backend server is unreachable. Showing cached tools.", "error");
@@ -92,7 +104,7 @@ const WorkspaceModule: React.FC = () => {
     } else if (activeFilter === 'dashboard' && activeCategory) {
       result = result.filter(app => app.category === activeCategory);
     }
-    return result;
+    return result.slice(0, 12);
   }, [apps, favorites, searchQuery, activeFilter, activeCategory]);
 
   const selectedApp = useMemo(() => 
@@ -124,7 +136,7 @@ const WorkspaceModule: React.FC = () => {
     return (
       <CardSurfaceContainer>
         <motion.div 
-          className={`grid gap-6 ${viewMode === 'card' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'} pb-20`}
+          className={`grid gap-5 ${viewMode === 'card' ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6'} pb-10`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ staggerChildren: 0.05 }}
@@ -146,8 +158,54 @@ const WorkspaceModule: React.FC = () => {
     );
   };
 
+  const getRobotColor = (category: string | null) => {
+    if (!category) return 'indigo';
+    const lower = category.toLowerCase();
+    if (lower.includes('product')) return 'fuchsia';
+    if (lower.includes('know')) return 'emerald';
+    if (lower.includes('plat')) return 'orange';
+    if (lower.includes('custom')) return 'blue';
+    if (lower.includes('present')) return 'pink';
+    return 'indigo';
+  };
+
+  const getRobotVariant = (category: string | null): import('./components/RobotAnimation').RobotVariant => {
+    if (!category) return 'idle';
+    const lower = category.toLowerCase();
+    if (lower.includes('product')) return 'blinking';
+    if (lower.includes('know')) return 'scanning';
+    if (lower.includes('plat')) return 'idle'; // Changed from hover
+    if (lower.includes('custom')) return 'idle'; // Changed from glitch
+    if (lower.includes('present')) return 'hologram';
+    if (lower.includes('sales')) return 'talking';
+    return 'idle';
+  };
+
+  const robotColor = getRobotColor(activeCategory);
+  const robotVariant = getRobotVariant(activeCategory);
+
   return (
     <div className="flex h-screen bg-background overflow-hidden transition-colors duration-300 text-foreground relative">
+      <AnimatePresence>
+        {showSplash && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 0.95, filter: 'blur(10px)' }}
+            transition={{ duration: 0.4, ease: "easeInOut" }}
+            className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-background/80 backdrop-blur-md p-4 cursor-pointer"
+            onClick={() => setShowSplash(false)}
+          >
+            <div className="w-full max-w-4xl pointer-events-none shadow-2xl rounded-3xl overflow-hidden">
+              <Hero />
+            </div>
+            <div className="absolute bottom-8 text-sm text-muted-foreground animate-pulse pointer-events-none">
+              Click anywhere to continue
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Animated AI Background */}
       <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none">
         {/* Ambient Gradient Base */}
@@ -173,39 +231,35 @@ const WorkspaceModule: React.FC = () => {
           viewMode={viewMode}
           setViewMode={setViewMode}
           totalApps={apps.length}
-          isLive={isLive}
+          totalCategories={categories.length}
+          totalFavorites={favorites.length}
           addToast={addToast}
         />
 
         <div 
           ref={mainContentRef}
-          className="flex-1 overflow-y-auto scroll-smooth no-scrollbar relative flex"
+          className="flex-1 overflow-y-auto scroll-smooth no-scrollbar relative flex flex-col min-h-0 pt-4"
         >
-           {/* Left Robot */}
-           <div className="hidden 2xl:flex w-64 flex-shrink-0 items-center justify-center sticky top-0 h-[calc(100vh-64px)]">
-             <RobotAnimation scale={0.6} />
-           </div>
-
-           <div className="p-6 md:p-8 w-full mx-auto space-y-4 flex-1 max-w-7xl">
+           <div className="p-4 md:p-6 w-full mx-auto space-y-4 flex-1 max-w-[1600px]">
              <AnimatePresence mode="wait">
                <motion.div 
                   key={activeFilter + '-' + activeCategory} 
-                  className="glass-panel rounded-3xl relative overflow-hidden bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl border border-white/20 dark:border-slate-800/50 shadow-sm"
+                  className="glass-panel rounded-3xl relative overflow-hidden bg-white/70 dark:bg-[#14141c]/60 backdrop-blur-md border border-gray-200 dark:border-white/10 shadow-[0_20px_40px_rgba(124,58,237,0.08)] dark:shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3 }}
+                  transition={{ duration: 0.15, staggerChildren: 0.03 }}
                 >
-                 <div className="p-6 md:p-8">
+                 <div className="p-4 md:p-6">
                    {renderContent()}
                  </div>
                </motion.div>
              </AnimatePresence>
           </div>
 
-          {/* Right Robot */}
-          <div className="hidden 2xl:flex w-64 flex-shrink-0 items-center justify-center sticky top-0 h-[calc(100vh-64px)]">
-            <RobotAnimation scale={0.6} />
+          {/* Fixed Bottom-Right Robot */}
+          <div className="fixed bottom-20 right-6 z-40 w-20 h-20 pointer-events-none">
+             <RobotAnimation scale={0.4} color={robotColor} variant={robotVariant} />
           </div>
         </div>
       </main>

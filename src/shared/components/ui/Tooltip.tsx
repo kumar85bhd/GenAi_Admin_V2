@@ -56,6 +56,7 @@ export const Tooltip: React.FC<TooltipProps> = ({
       window.removeEventListener('scroll', updatePosition);
       window.removeEventListener('resize', updatePosition);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isVisible]);
 
   return (

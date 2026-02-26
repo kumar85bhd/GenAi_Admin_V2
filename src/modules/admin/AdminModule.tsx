@@ -4,7 +4,7 @@ import ServiceCard from './components/ServiceCard';
 import HealthSummaryCard from './components/HealthSummaryCard';
 import ServiceDrawer from './components/ServiceDrawer';
 import { fetchConfig } from './services/api';
-import { useAuth } from '../../shared/context/AuthContext';
+import { useAuth } from '../../shared/context/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Grid, List } from 'lucide-react';
 import { motion } from 'framer-motion';

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, LayoutGrid, List, Menu, Moon, Sun, Monitor, ExternalLink, LogOut, ChevronDown, User, ShieldCheck } from 'lucide-react';
+import { Search, LayoutGrid, List, Moon, Sun, Monitor, ExternalLink, LogOut, ChevronDown, User, ShieldCheck } from 'lucide-react';
 import { ViewMode } from '../../../shared/types';
-import { usePreferences } from '../../../shared/context/PreferencesContext';
-import { useUserPreference } from '../../../shared/context/UserPreferenceContext';
+import { usePreferences } from '../../../shared/context/usePreferences';
+import { useUserPreference } from '../../../shared/context/useUserPreference';
 import { Tooltip } from '../../../shared/components/ui/Tooltip';
 import { Switch } from '../../../shared/components/ui/Switch';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../shared/context/AuthContext';
+import { useAuth } from '../../../shared/context/useAuth';
 import { ToastType } from '../../../shared/components/Toast';
 
 interface HeaderProps {
@@ -16,7 +16,8 @@ interface HeaderProps {
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
   totalApps: number;
-  isLive: boolean;
+  totalCategories: number;
+  totalFavorites: number;
   addToast: (message: string, type?: ToastType) => void;
 }
 
@@ -34,7 +35,8 @@ const Header: React.FC<HeaderProps> = ({
   viewMode,
   setViewMode,
   totalApps,
-  isLive,
+  totalCategories,
+  totalFavorites,
   addToast
 }) => {
   const { openInNewTab, toggleOpenInNewTab } = usePreferences();
@@ -81,19 +83,19 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 transition-all duration-200 backdrop-blur-md bg-background/80">
+    <header className="h-[80px] glass-panel border-b border-white/10 flex items-center justify-between px-4 md:px-8 sticky top-0 z-50 transition-all duration-200 backdrop-blur-md bg-background/80 py-4">
       <div className="flex items-center gap-8 flex-1">
         
         <div className="flex items-center gap-3">
 
            <div className="hidden md:block">
-            <h1 className="text-xl font-serif font-bold text-foreground">
-              {greeting}, <span className="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">{userName}</span>
+            <h1 className="text-xl font-semibold text-foreground flex items-center gap-1">
+              <span>{greeting},</span>
+              <span className="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">{userName}</span>
             </h1>
             <div className="flex items-center gap-2 mt-0.5">
-              <div className={`w-1.5 h-1.5 rounded-full ${isLive ? 'bg-emerald-500' : 'bg-amber-500'} animate-pulse`} />
-              <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                {isLive ? 'System Online' : 'Offline'} • {totalApps} tools
+              <p className="text-xs text-muted-foreground italic">
+                Available: {totalApps} Tools • {totalCategories} Categories • {totalFavorites} Favorites
               </p>
             </div>
           </div>
@@ -113,7 +115,7 @@ const Header: React.FC<HeaderProps> = ({
 
       <div className="flex items-center gap-4 ml-6">
         <div className="flex items-center bg-secondary rounded-lg p-1 border border-border">
-          <Tooltip content="Grid View">
+          <Tooltip content="Grid View" position="bottom">
             <button
               onClick={() => setViewMode('card')}
               className={`p-2 rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-ring/40 ${
@@ -125,7 +127,7 @@ const Header: React.FC<HeaderProps> = ({
               <LayoutGrid size={18} />
             </button>
           </Tooltip>
-          <Tooltip content="List View">
+          <Tooltip content="List View" position="bottom">
             <button
               onClick={() => setViewMode('icon')}
               className={`p-2 rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-ring/40 ${

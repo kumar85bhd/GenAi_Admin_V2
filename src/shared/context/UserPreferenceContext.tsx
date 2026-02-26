@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+/* eslint-disable react-refresh/only-export-components */
+import React, { createContext, useEffect, useState } from 'react';
 import { api } from '../services/api';
-import { useAuth } from './AuthContext';
+import { useAuth } from './useAuth';
 
 interface UserPreferenceContextType {
   theme: 'light' | 'dark';
@@ -10,7 +11,7 @@ interface UserPreferenceContextType {
   toggleFavorite: (id: number) => void;
 }
 
-const UserPreferenceContext = createContext<UserPreferenceContextType | undefined>(undefined);
+export const UserPreferenceContext = createContext<UserPreferenceContextType | undefined>(undefined);
 
 export const UserPreferenceProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isAuthenticated } = useAuth();
@@ -71,12 +72,4 @@ export const UserPreferenceProvider: React.FC<{ children: React.ReactNode }> = (
       {children}
     </UserPreferenceContext.Provider>
   );
-};
-
-export const useUserPreference = () => {
-  const context = useContext(UserPreferenceContext);
-  if (context === undefined) {
-    throw new Error('useUserPreference must be used within a UserPreferenceProvider');
-  }
-  return context;
 };

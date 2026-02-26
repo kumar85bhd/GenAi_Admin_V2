@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Home, Star, Briefcase, BookOpen, Layout, Settings, Database, Folder, Users, Presentation } from 'lucide-react';
 import { FilterType } from '../../../shared/types';
-import { useAuth } from '../../../shared/context/AuthContext';
-import { useNavigate } from 'react-router-dom';
 import { Tooltip } from '../../../shared/components/ui/Tooltip';
 
 interface SidebarNavigationProps {
@@ -33,14 +31,6 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   onNavigate,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const { user } = useAuth();
-  const navigate = useNavigate();
-
-  const handleAdminSwitch = () => {
-    if (user?.roles?.includes('admin')) {
-      navigate('/admin');
-    }
-  };
 
   return (
     <motion.div
@@ -50,10 +40,18 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
       transition={{ duration: 0.25, ease: 'easeInOut' }}
       className="h-screen bg-card border-r border-border flex flex-col fixed left-0 top-0 z-50"
     >
-        <div className="flex items-center justify-center h-16 flex-shrink-0">
-             <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold font-serif text-sm shadow-sm shadow-indigo-500/20">
+        <div className={`flex items-center h-16 flex-shrink-0 ${isExpanded ? 'px-5' : 'justify-center'}`}>
+             <div className="w-8 h-8 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold font-serif text-sm shadow-sm shadow-indigo-500/20 flex-shrink-0">
               G
            </div>
+           <motion.div
+             initial={false}
+             animate={{ opacity: isExpanded ? 1 : 0, width: isExpanded ? 'auto' : 0, marginLeft: isExpanded ? 12 : 0 }}
+             transition={{ duration: 0.2, ease: 'easeInOut' }}
+             className="overflow-hidden whitespace-nowrap font-semibold text-sm text-foreground"
+           >
+             GenAI Workspace
+           </motion.div>
         </div>
 
         <nav className="flex-1 flex flex-col gap-1 px-3 py-4">
@@ -91,17 +89,6 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
                 ))}
             </div>
         </nav>
-
-        <div className="mt-auto p-3 border-t border-border">
-             <NavItem
-                isExpanded={isExpanded}
-                onClick={handleAdminSwitch}
-                label="Admin View"
-                isActive={false}
-            >
-                <Settings size={20} />
-            </NavItem>
-        </div>
     </motion.div>
   );
 };
