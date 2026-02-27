@@ -24,6 +24,55 @@ const getCategoryIcon = (category: string) => {
     return <Folder size={size} />;
 };
 
+const getColorConfig = (category: string | null) => {
+    const lower = (category || '').toLowerCase();
+    
+    if (lower.includes('product')) return {
+        activeBg: 'bg-fuchsia-100 dark:bg-fuchsia-900/20',
+        activeText: 'text-fuchsia-700 dark:text-fuchsia-300',
+        activeBorder: 'border-fuchsia-200 dark:border-fuchsia-700/50',
+        indicator: 'bg-fuchsia-500',
+        glow: 'shadow-[0_0_20px_-5px_rgba(217,70,239,0.4)]'
+    };
+    if (lower.includes('know')) return {
+        activeBg: 'bg-emerald-100 dark:bg-emerald-900/20',
+        activeText: 'text-emerald-700 dark:text-emerald-300',
+        activeBorder: 'border-emerald-200 dark:border-emerald-700/50',
+        indicator: 'bg-emerald-500',
+        glow: 'shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]'
+    };
+    if (lower.includes('plat')) return {
+        activeBg: 'bg-orange-100 dark:bg-orange-900/20',
+        activeText: 'text-orange-700 dark:text-orange-300',
+        activeBorder: 'border-orange-200 dark:border-orange-700/50',
+        indicator: 'bg-orange-500',
+        glow: 'shadow-[0_0_20px_-5px_rgba(249,115,22,0.4)]'
+    };
+    if (lower.includes('custom') || lower.includes('customer')) return {
+        activeBg: 'bg-blue-100 dark:bg-blue-900/20',
+        activeText: 'text-blue-700 dark:text-blue-300',
+        activeBorder: 'border-blue-200 dark:border-blue-700/50',
+        indicator: 'bg-blue-500',
+        glow: 'shadow-[0_0_20px_-5px_rgba(59,130,246,0.4)]'
+    };
+    if (lower.includes('present')) return {
+        activeBg: 'bg-pink-100 dark:bg-pink-900/20',
+        activeText: 'text-pink-700 dark:text-pink-300',
+        activeBorder: 'border-pink-200 dark:border-pink-700/50',
+        indicator: 'bg-pink-500',
+        glow: 'shadow-[0_0_20px_-5px_rgba(236,72,153,0.4)]'
+    };
+    
+    // Default (Home, Favorites, others)
+    return {
+        activeBg: 'bg-indigo-100 dark:bg-indigo-900/20',
+        activeText: 'text-indigo-700 dark:text-indigo-300',
+        activeBorder: 'border-indigo-200 dark:border-indigo-700/50',
+        indicator: 'bg-indigo-500',
+        glow: 'shadow-[0_0_20px_-5px_rgba(99,102,241,0.4)]'
+    };
+};
+
 const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
   activeFilter,
   activeCategory,
@@ -60,6 +109,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
                 isActive={activeFilter === 'dashboard' && activeCategory === null}
                 onClick={() => onNavigate('dashboard', null)}
                 label="Home"
+                categoryName="home"
             >
                 <Home size={20} />
             </NavItem>
@@ -69,6 +119,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
                 isActive={activeFilter === 'favorites'}
                 onClick={() => onNavigate('favorites', null)}
                 label="Favorites"
+                categoryName="favorites"
             >
                 <Star size={20} />
             </NavItem>
@@ -83,6 +134,7 @@ const SidebarNavigation: React.FC<SidebarNavigationProps> = ({
                         isActive={activeCategory === category}
                         onClick={() => onNavigate('dashboard', category)}
                         label={category}
+                        categoryName={category}
                     >
                         {getCategoryIcon(category)}
                     </NavItem>
@@ -100,17 +152,27 @@ interface NavItemProps {
   isActive: boolean;
   onClick: () => void;
   label: string;
+  categoryName: string;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ children, isExpanded, isActive, onClick, label }) => {
+const NavItem: React.FC<NavItemProps> = ({ children, isExpanded, isActive, onClick, label, categoryName }) => {
+    const colors = getColorConfig(categoryName);
+    
     const itemContent = (
         <motion.button
             onClick={onClick}
-            className={`flex items-center w-full h-10 rounded-lg px-3 text-sm font-medium transition-colors relative focus:outline-none focus:ring-2 focus:ring-indigo-500/50 ${ 
-                isActive ? 'bg-secondary text-primary' : 'text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
+            className={`flex items-center w-full h-10 rounded-lg px-3 text-sm font-medium transition-all duration-200 relative focus:outline-none focus:ring-2 focus:ring-indigo-500/50 border ${ 
+                isActive 
+                    ? `${colors.activeBg} ${colors.activeText} ${colors.activeBorder} ${colors.glow}` 
+                    : 'border-transparent text-muted-foreground hover:bg-secondary/50 hover:text-foreground'
             }`}
         >
-            {isActive && <motion.div layoutId="activeSidebarIndicator" className="absolute left-0 top-2 bottom-2 w-1 bg-indigo-500 rounded-r-full" />}
+            {isActive && (
+                <motion.div 
+                    layoutId="activeSidebarIndicator" 
+                    className={`absolute left-0 top-1 bottom-1 w-1 rounded-r-full ${colors.indicator}`} 
+                />
+            )}
             {children}
             <motion.div
                 initial={false}

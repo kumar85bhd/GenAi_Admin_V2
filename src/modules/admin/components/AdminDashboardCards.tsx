@@ -1,63 +1,47 @@
 import React, { useMemo } from 'react';
-import { Service } from '../types';
+import { Service, HealthStatus } from '../types';
 import AdminCard from './AdminCard';
 
 interface AdminDashboardCardsProps {
   services: Service[];
   activeCategory: string | null;
+  filterStatus?: string;
 }
 
 /**
  * AdminDashboardCards
  * Groups services by category and renders them in a grid.
  */
-const AdminDashboardCards: React.FC<AdminDashboardCardsProps> = ({ services, activeCategory }) => {
-  const groupedServices = useMemo(() => {
-    const groups: Record<string, Service[]> = {};
-    services.forEach(s => {
-      if (!groups[s.category]) {
-        groups[s.category] = [];
-      }
-      groups[s.category].push(s);
-    });
+const AdminDashboardCards: React.FC<AdminDashboardCardsProps> = ({ services, activeCategory, filterStatus }) => {
+  const filteredServices = useMemo(() => {
+    let result = services;
+    
+    if (activeCategory) {
+      result = result.filter(s => s.category === activeCategory);
+    }
 
-    const sortedCategories = Object.keys(groups).sort();
+    if (filterStatus) {
+      if (filterStatus === 'healthy') result = result.filter(s => s.status === HealthStatus.HEALTHY);
+      if (filterStatus === 'warning') result = result.filter(s => s.status === HealthStatus.WARNING);
+      if (filterStatus === 'error') result = result.filter(s => s.status === HealthStatus.CRITICAL);
+    }
 
-    sortedCategories.forEach(cat => {
-      groups[cat].sort((a, b) => a.name.localeCompare(b.name));
-    });
+    return result;
+  }, [services, activeCategory, filterStatus]);
 
-    return { groups, sortedCategories };
-  }, [services]);
-
-  const categoriesToRender = activeCategory
-    ? [activeCategory]
-    : groupedServices.sortedCategories;
+  if (filteredServices.length === 0) {
+    return (
+      <div className="text-center py-20 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 border-dashed">
+        <p className="text-slate-500 dark:text-slate-400">No services found matching your criteria.</p>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-8">
-      {categoriesToRender.map(cat => {
-        const catServices = groupedServices.groups[cat];
-        if (!catServices || catServices.length === 0) return null;
-
-        return (
-          <section key={cat}>
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-200 dark:border-slate-700 pb-2">
-              {cat}
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              {catServices.map(service => (
-                <AdminCard key={service.id} service={service} />
-              ))}
-            </div>
-          </section>
-        );
-      })}
-      {categoriesToRender.length === 0 && (
-        <div className="text-slate-500 dark:text-slate-400 text-center py-12">
-          No services found for the selected category.
-        </div>
-      )}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {filteredServices.map(service => (
+        <AdminCard key={service.id} service={service} />
+      ))}
     </div>
   );
 };

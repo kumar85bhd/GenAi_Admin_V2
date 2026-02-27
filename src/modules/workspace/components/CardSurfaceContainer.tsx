@@ -31,7 +31,7 @@ const CardSurfaceContainer: React.FC<CardSurfaceContainerProps> = ({ children, c
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className={`relative w-full ${className}`}
+      className={`relative w-full h-fit overflow-hidden ${className}`}
     >
       {/* Highlight Layer */}
       <motion.div

@@ -298,9 +298,9 @@ const WorkspaceModule: React.FC = () => {
 
         <div 
           ref={mainContentRef}
-          className="flex-1 overflow-y-auto scroll-smooth no-scrollbar relative flex flex-col min-h-0 pt-4"
+          className="flex-1 overflow-y-auto scroll-smooth no-scrollbar relative flex flex-col min-h-0 pt-2"
         >
-           <div className="p-4 md:p-6 w-full mx-auto space-y-4 flex-1 max-w-[1600px]">
+           <div className="p-2 md:p-4 w-full mx-auto space-y-3 flex-1 max-w-[1600px]">
              <AnimatePresence mode="wait">
                <motion.div 
                   key={activeFilter + '-' + activeCategory} 
@@ -310,7 +310,7 @@ const WorkspaceModule: React.FC = () => {
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.15, staggerChildren: 0.03 }}
                 >
-                 <div className="p-4 md:p-6">
+                 <div className="p-2 md:p-4">
                    {renderContent()}
                  </div>
                </motion.div>
@@ -329,7 +329,6 @@ const WorkspaceModule: React.FC = () => {
       <DetailPanel 
         app={selectedApp} 
         onClose={() => setSelectedAppId(null)} 
-        onToggleFav={handleToggleFav}
       />
       
       <ToastContainer toasts={toasts} removeToast={removeToast} />

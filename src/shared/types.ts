@@ -2,12 +2,14 @@ export interface AppData {
   id: number;
   name: string;
   desc: string;
+  keyFeatures?: string;
   category: string;
   isFavorite: boolean;
   baseActivity: string;
   icon: string;
   url: string;
   metrics: string;
+  metricsEnabled?: boolean;
   status: string;
   lastUsed: string;
 }

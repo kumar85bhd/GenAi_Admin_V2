@@ -1,2 +1,2 @@
-export { authMiddleware } from './auth/authMiddleware';
-export { default as adminRoutes } from './routes/admin.routes';
+export { authMiddleware } from './auth/authMiddleware.ts';
+export { default as adminRoutes } from './routes/admin.routes.ts';

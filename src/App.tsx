@@ -15,7 +15,7 @@ const ProtectedRoute = ({ children, requireAdmin }: { children: React.ReactNode,
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
-  if (requireAdmin && !user?.roles?.includes('admin')) {
+  if (requireAdmin && !(user?.role === 'admin' || user?.roles?.includes('admin'))) {
     return <Navigate to="/workspace" replace />;
   }
   return <>{children}</>;

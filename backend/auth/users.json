@@ -2,11 +2,19 @@
   {
     "email": "guest@samsung.com",
     "name": "Guest User",
-    "password": "password"
+    "password": "password",
+    "role": "user"
   },
   {
     "email": "admin@samsung.com",
     "name": "Admin User",
-    "password": "password"
+    "password": "password",
+    "role": "admin"
+  },
+  {
+    "email": "adming@samsung.com",
+    "name": "Admin User (Typo)",
+    "password": "password",
+    "role": "admin"
   }
 ]

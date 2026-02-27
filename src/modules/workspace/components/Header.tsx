@@ -59,7 +59,7 @@ const Header: React.FC<HeaderProps> = ({
   };
 
   const handleAdminSwitch = () => {
-    if (user?.roles?.includes('admin')) {
+    if (user?.role === 'admin' || user?.roles?.includes('admin')) {
       navigate('/admin');
     } else {
       addToast("You do not have admin access", "error");

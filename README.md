@@ -161,3 +161,19 @@ To test the application as a standard user or an admin, simply log out and log b
 - **Design Philosophy**: Strict adherence to a stable, professional UI. Removed all animations, glow effects, and mock polling.
 - **Metrics Handling**: Service cards (`AdminCard.tsx`) fetch their own metrics on mount with a manual refresh option, ensuring no background polling overhead.
 - **Color Strategy**: Utilizes a neutral slate palette with indigo accents for active states, supporting both light and dark modes seamlessly.
+
+## 13. Admin Enhancements (Phase 7 Update)
+- **Tabbed Application Management**: The "Applications" page now features a tabbed interface for managing:
+  - **Workspace Applications**: The main list of apps available to users.
+  - **Admin Dashboard Links**: Configurable links for the admin dashboard, stored in `admin_config.json`.
+  - **Manage Categories**: A dedicated tab for creating and editing application categories.
+- **Enhanced Tables**:
+  - **Sticky Headers**: Tables now have sticky headers for better usability.
+  - **Client-Side Sorting**: Columns are sortable by clicking on headers.
+  - **Category Dropdown**: Application creation/editing now uses a dropdown populated from the database.
+- **Content Management**:
+  - **Rich Content Editing**: Description and Key Features are managed via a dedicated modal.
+  - **Metrics Control**: A toggle to enable/disable metrics fetching for each application.
+- **Backend Improvements**:
+  - **JSON-Backed Dashboard Links**: Full CRUD support for dashboard links using `admin_config.json` with atomic file writes.
+  - **Validation**: Strict validation for all inputs, including URL formats and unique constraints.

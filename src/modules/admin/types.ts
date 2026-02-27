@@ -31,6 +31,6 @@ export interface AppConfig {
   categories: {
     id: string;
     name: string;
-    services: { id: string; name: string; type: string; url?: string }[];
+    services: { id: string; name: string; type: string; url?: string; description?: string }[];
   }[];
 }

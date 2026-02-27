@@ -4,21 +4,23 @@ import { AppData, AppMetric } from '../../../shared/types';
 import { api } from '../../../shared/services/api';
 import { Tooltip } from '../../../shared/components/ui/Tooltip';
 import { usePreferences } from '../../../shared/context/usePreferences';
+import { useUserPreference } from '../../../shared/context/useUserPreference';
 
 interface DetailPanelProps {
   app: AppData | null;
   onClose: () => void;
-  onToggleFav: (id: number) => void;
 }
 
-const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) => {
-  const [metric, setMetric] = useState<AppMetric | null>(null);
+const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose }) => {
+    const [metric, setMetric] = useState<AppMetric | null>(null);
   const [loading, setLoading] = useState(false);
   const { openInNewTab } = usePreferences();
+  const { favorites, toggleFavorite } = useUserPreference();
+  const isFavorite = app ? favorites.includes(app.id) : false;
 
   useEffect(() => {
     let isMounted = true;
-    if (app) {
+    if (app?.id && app.metricsEnabled) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setLoading(true);
       api.getMetrics(app.id).then(({ data }) => {
@@ -31,7 +33,7 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) 
     return () => {
       isMounted = false;
     };
-  }, [app]);
+  }, [app?.id, app?.metricsEnabled]);
 
   if (!app) return null;
 
@@ -59,14 +61,14 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) 
           <div className="flex items-center gap-2">
             <Tooltip content={app.isFavorite ? "Remove from Favorites" : "Add to Favorites"} position="bottom">
               <button 
-                onClick={() => onToggleFav(app.id)}
+                onClick={() => app && toggleFavorite(app.id)}
                 className={`p-2 rounded-full border transition-all focus:outline-none focus:ring-2 focus:ring-ring/40 ${
-                  app.isFavorite 
+                  isFavorite 
                     ? 'bg-amber-400/10 border-amber-400/20 text-amber-400' 
                     : 'bg-secondary border-border text-muted-foreground hover:border-border-hover'
                 }`}
               >
-                <Star size={18} fill={app.isFavorite ? "currentColor" : "none"} />
+                <Star size={18} fill={isFavorite ? "currentColor" : "none"} />
               </button>
             </Tooltip>
             <Tooltip content="Share App" position="bottom">
@@ -88,9 +90,13 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) 
             </div>
           </div>
 
-          <p className="text-foreground/80 leading-relaxed mb-8">
-            {app.desc} This tool is designed to streamline your workflow and enhance productivity through AI-driven automation.
-          </p>
+          {app.desc ? (
+            <p className="text-foreground/80 leading-relaxed mb-8 whitespace-pre-wrap">
+              {app.desc}
+            </p>
+          ) : (
+            <div className="mb-8" />
+          )}
 
           <div className="grid grid-cols-2 gap-4 mb-8">
             <div className="p-4 rounded-xl bg-secondary border border-border">
@@ -109,37 +115,43 @@ const DetailPanel: React.FC<DetailPanelProps> = ({ app, onClose, onToggleFav }) 
             </div>
           </div>
 
-          {loading ? (
-            <div className="h-24 rounded-xl bg-secondary animate-pulse mb-8" />
-          ) : metric ? (
-            <div className="p-5 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/20 mb-8">
-              <p className="text-primary-foreground/80 text-sm font-medium mb-1">{metric.name}</p>
-              <div className="flex items-end gap-3">
-                <span className="text-3xl font-bold">{metric.value}</span>
-                {metric.trend && (
-                  <span className={`text-sm px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-sm ${
-                    metric.trend === 'up' ? 'text-green-300' : 'text-red-300'
-                  }`}>
-                    {metric.trend === 'up' ? '+12%' : '-5%'}
-                  </span>
-                )}
-              </div>
-            </div>
-          ) : null}
-
-          <h3 className="font-semibold text-foreground mb-3">Key Features</h3>
-          <ul className="space-y-3 mb-8">
-            {[1, 2, 3].map((i) => (
-              <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
-                <div className="w-5 h-5 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
+          {app.metricsEnabled && (
+            loading ? (
+              <div className="h-24 rounded-xl bg-secondary animate-pulse mb-8" />
+            ) : metric ? (
+              <div className="p-5 rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-lg shadow-primary/20 mb-8">
+                <p className="text-primary-foreground/80 text-sm font-medium mb-1">{metric.name}</p>
+                <div className="flex items-end gap-3">
+                  <span className="text-3xl font-bold">{metric.value}</span>
+                  {metric.trend && (
+                    <span className={`text-sm px-2 py-0.5 rounded-full bg-white/20 backdrop-blur-sm ${
+                      metric.trend === 'up' ? 'text-green-300' : 'text-red-300'
+                    }`}>
+                      {metric.trend === 'up' ? '+12%' : '-5%'}
+                    </span>
+                  )}
                 </div>
-                <span>Automated processing of complex data structures with real-time validation.</span>
-              </li>
-            ))}
-          </ul>
+              </div>
+            ) : null
+          )}
+
+          {app.keyFeatures && (
+            <>
+              <h3 className="font-semibold text-foreground mb-3">Key Features</h3>
+              <ul className="space-y-3 mb-8">
+                {app.keyFeatures.split('\n').filter(f => f.trim()).map((feature, i) => (
+                  <li key={i} className="flex items-start gap-3 text-sm text-muted-foreground">
+                    <div className="w-5 h-5 rounded-full bg-green-500/10 text-green-500 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M10 3L4.5 8.5L2 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </div>
+                    <span>{feature.trim()}</span>
+                  </li>
+                ))}
+              </ul>
+            </>
+          )}
         </div>
 
         <div className="p-6 border-t border-border bg-secondary/30">
